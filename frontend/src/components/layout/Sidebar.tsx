@@ -45,6 +45,11 @@ export function Sidebar({
         >
           <SidebarToggleIcon className="toggle-icon" isOpen={isOpen} />
         </button>
+
+        <div className="sidebar-brand" aria-label="Application logo">
+          <span className="sidebar-logo-mark">L</span>
+          {isOpen ? <span className="sidebar-logo-text">Logo</span> : null}
+        </div>
       </div>
 
       <nav className="sidebar-nav" aria-label="Dashboard navigation">

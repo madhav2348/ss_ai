@@ -82,7 +82,9 @@
 
 .sidebar-header {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
 }
 
 .sidebar-toggle {
@@ -103,6 +105,33 @@
 .toggle-icon {
   width: 22px;
   height: 22px;
+}
+
+.sidebar-brand {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.sidebar-logo-mark {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--surface);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.sidebar-logo-text {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--surface);
+  letter-spacing: 0.02em;
 }
 
 .theme-toggle {
