@@ -1,7 +1,7 @@
 import type { ThemeMode } from '../../app/App'
 import type { DashboardSection } from '../../app/routes'
 import { useState } from 'react'
-import { AccountIcon } from '../icons/NavigationIcons'
+import { AccountIcon, MoonIcon, SunIcon } from '../icons/NavigationIcons'
 import { CloudPage } from '../../pages/dashboard/CloudPage'
 import { LocalStoragePage } from '../../pages/dashboard/LocalStoragePage'
 import { TelegramPage } from '../../pages/dashboard/TelegramPage'
@@ -46,7 +46,12 @@ export function DashboardLayout({
                 className="theme-toggle dashboard-theme-toggle"
                 onClick={onToggleTheme}
               >
-                {theme === 'light' ? 'Dark' : 'Light'}
+                {theme === 'light' ? (
+                  <MoonIcon className="theme-icon" />
+                ) : (
+                  <SunIcon className="theme-icon" />
+                )}
+                {/* {theme === 'light' ? 'Dark' : 'Light'} */}
               </button>
 
               <div className="account-menu-wrap">

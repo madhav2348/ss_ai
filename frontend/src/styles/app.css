@@ -110,10 +110,18 @@
 
 .theme-toggle {
   min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   padding: 0 16px;
   border-radius: 16px;
   color: var(--text);
   background: var(--surface-soft);
+}
+
+.theme-icon {
+  width: 18px;
+  height: 18px;
 }
 
 .floating-theme-toggle {

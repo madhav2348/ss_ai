@@ -1,4 +1,5 @@
 import type { ThemeMode } from '../app/App'
+import { MoonIcon, SunIcon } from '../components/icons/NavigationIcons'
 
 type SplashPageProps = {
   onGetStarted: () => void
@@ -18,7 +19,12 @@ export function SplashPage({
         className="theme-toggle floating-theme-toggle"
         onClick={onToggleTheme}
       >
-        {theme === 'light' ? 'Dark' : 'Light'}
+        {theme === 'light' ? (
+          <MoonIcon className="theme-icon" />
+        ) : (
+          <SunIcon className="theme-icon" />
+        )}
+        {/* {theme === 'light' ? 'Dark' : 'Light'} */}
       </button>
 
       <section className="splash-card">
