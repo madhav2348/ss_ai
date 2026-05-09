@@ -1,4 +1,13 @@
-# React + TypeScript + Vite
+# Legacy Frontend
+
+This Vite frontend is legacy and kept for reference. The main app now runs from the repository root.
+
+```bash
+cd ..
+npm run dev
+```
+
+## Original Template Notes
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

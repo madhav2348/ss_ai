@@ -1,4 +1,4 @@
-import { getServerRuntime } from "@/src/server/runtime";
+import { getServerRuntime } from "@/server/runtime";
 
 export async function GET() {
   const { pipeline } = await getServerRuntime();

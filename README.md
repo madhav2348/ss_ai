@@ -1,5 +1,32 @@
 # SS AI
-A personal Ai for screenshot analyzing, data fetching
+A personal AI for screenshot analysis and metadata extraction.
+
+## Main app
+The main app now lives at the repository root with Next.js routes under `src/app` and feature/server code under `src/features` and `src/server`.
+
+Run the app from the repository root:
+
+```bash
+npm run dev
+```
+
+Useful root scripts:
+
+```bash
+npm run build
+npm run lint
+npm run backend:check
+```
+
+## Repository structure
+- `src/app/` - main Next.js routes, layouts, and API route handlers.
+- `src/features/` - UI feature modules.
+- `src/server/` - server-side screenshot pipeline and API runtime.
+- `public/` - static assets.
+- `storage/` - local app storage.
+- `frontend/` - legacy Vite frontend, retained for reference.
+- `backend/` - legacy standalone TypeScript backend, retained for reference.
+- `mobile/` - legacy mobile placeholder, retained for reference.
 
 ## Current foundation
 - TypeScript backend scaffold aligned to the architecture below
@@ -9,8 +36,11 @@ A personal Ai for screenshot analyzing, data fetching
 - Repository, processed JSON storage, vector index stub, and CSV-style XLSX export placeholder
 - Minimal HTTP API with `/health`, `/screenshots`, and `/exports/xlsx`
 
-## Quick start
+## Legacy quick start
+These commands are for the old standalone backend package:
+
 ```bash
+cd backend
 npm install
 cp .env.example .env
 npm run check

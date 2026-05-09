@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "../src/features/ss-app/index.css";
+@import "../features/ss-app/index.css";
 
 :root {
   --foreground: var(--text);

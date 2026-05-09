@@ -1,8 +1,8 @@
 {
-  "name": "ss-ai",
+  "name": "ss-ai-legacy-backend",
   "version": "0.1.0",
   "private": true,
-  "description": "Personal AI for screenshot analysis and metadata extraction.",
+  "description": "Legacy standalone backend kept for reference. The main app now runs from the repository root.",
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",

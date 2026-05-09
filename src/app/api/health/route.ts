@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerRuntime } from "@/src/server/runtime";
+import { getServerRuntime } from "@/server/runtime";
 
 export async function GET() {
   const { queue } = await getServerRuntime();

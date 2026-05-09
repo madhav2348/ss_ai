@@ -1,6 +1,7 @@
 {
-  "name": "frontend",
+  "name": "ss-ai-legacy-frontend",
   "private": true,
+  "description": "Legacy Vite frontend kept for reference. The main app now runs from the repository root.",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
