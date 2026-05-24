@@ -9,14 +9,10 @@
     "build": "next build",
     "backend:check": "tsc --noEmit --project tsconfig.json",
     "start": "next start",
-    "lint": "eslint",
-    "legacy:frontend:dev": "npm --prefix frontend run dev",
-    "legacy:frontend:build": "npm --prefix frontend run build",
-    "legacy:backend:check": "npm --prefix backend run check",
-    "legacy:backend:dev": "npm --prefix backend run dev"
+    "lint": "eslint"
   },
   "dependencies": {
-    "next": "16.2.2",
+    "next": "^16.2.6",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },

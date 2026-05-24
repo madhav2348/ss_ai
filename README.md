@@ -15,7 +15,6 @@ Useful root scripts:
 ```bash
 npm run build
 npm run lint
-npm run backend:check
 ```
 
 ## Repository structure
@@ -24,28 +23,17 @@ npm run backend:check
 - `src/server/` - server-side screenshot pipeline and API runtime.
 - `public/` - static assets.
 - `storage/` - local app storage.
-- `frontend/` - legacy Vite frontend, retained for reference.
-- `backend/` - legacy standalone TypeScript backend, retained for reference.
-- `mobile/` - legacy mobile placeholder, retained for reference.
+- `mobile/` - [ soon ] mobile placeholder, retained for reference.
 
 ## Current foundation
 - TypeScript backend scaffold aligned to the architecture below
 - Ingestion stubs for Telegram, local device watcher, and cloud watcher
 - In-memory queue for early development, plus Redis client placeholder
-- Worker pipeline for OCR, vision analysis, source lookup, and tagging
+- Screenshot processing pipeline for OCR, vision analysis, source lookup, and tagging
+- Target worker pool model where multiple workers process different screenshots in parallel
 - Repository, processed JSON storage, vector index stub, and CSV-style XLSX export placeholder
 - Minimal HTTP API with `/health`, `/screenshots`, and `/exports/xlsx`
 
-## Legacy quick start
-These commands are for the old standalone backend package:
-
-```bash
-cd backend
-npm install
-cp .env.example .env
-npm run check
-npm run dev
-```
 
 ### Feature
 - connects to cloud storage and automatically processes new screenshots.
@@ -105,23 +93,66 @@ npm run dev
 
 ```
 
-#### Workers
+#### Multi-worker processing model
+
+The worker pool is meant to speed up batches by processing multiple screenshots at the same time.
+For example, with 5 workers and 20 screenshots, up to 5 screenshots can be processed in parallel.
+Each worker owns one screenshot job at a time and runs the full analysis pipeline for that screenshot:
+
+```
+Screenshot Queue
+      |
+      v
++------------+   +------------+   +------------+   +------------+   +------------+
+| Worker 1   |   | Worker 2   |   | Worker 3   |   | Worker 4   |   | Worker 5   |
+| Screenshot |   | Screenshot |   | Screenshot |   | Screenshot |   | Screenshot |
+| Job A      |   | Job B      |   | Job C      |   | Job D      |   | Job E      |
++------------+   +------------+   +------------+   +------------+   +------------+
+      |                |                |                |                |
+      v                v                v                v                v
+ OCR -> Vision AI -> Source Search -> Tags -> Store processed result
+```
+
+This means more workers can increase throughput when there are many screenshots waiting.
+It does not mean one screenshot is split across 5 workers. One screenshot still moves through
+OCR, AI analysis, source search, tagging, and storage as a single job.
+
+Current implementation note: the repository has the pipeline classes and an in-memory queue scaffold.
+The configurable parallel worker pool and Redis-backed processing are still target architecture work.
+
+#### Worker stages
 ```
 Queue (Redis)
      |
      v
-+------------+     +------------+     +------------+
-| Worker 1   |     | Worker 2   |     | Worker 3   |
-| OCR        |     | Vision AI  |     | Source     |
-+------------+     +------------+     +------------+
-        \              |                /
-         \             |               /
-          +---------------------------+
-          |   Result Aggregator       |
-          +---------------------------+
-                    |
-                    v
-               Database
++----------------------+
+| Worker picks one job |
++----------------------+
+     |
+     v
++----------------------+
+| OCR                  |
++----------------------+
+     |
+     v
++----------------------+
+| Vision AI            |
++----------------------+
+     |
+     v
++----------------------+
+| Source Search        |
++----------------------+
+     |
+     v
++----------------------+
+| Tagging              |
++----------------------+
+     |
+     v
++----------------------+
+| JSON / DB / XLSX     |
++----------------------+
 
 ```
 #### Flow
