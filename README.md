@@ -1,17 +1,11 @@
-
 <div align="center">
-
 <img src="public/logo.png" width="140" alt="GitNest Logo"/>
-
-# GitNest - Lightweight Collaborative Code Hosting Platform
-
-
+</div>
 
 <p align="center">
   <strong>AI-powered screenshot analysis and knowledge extraction platform that processes screenshots from multiple sources using OCR, Vision AI, metadata enrichment, tagging, and parallel worker pipelines..</strong>
 </p>
 
-AI-powered screenshot analysis and knowledge extraction platform that processes screenshots from multiple sources using OCR, Vision AI, metadata enrichment, tagging, and parallel worker pipelines.
 ## Main app
 The main app now lives at the repository root with Next.js routes under `src/app` and feature/server code under `src/features` and `src/server`.
 
