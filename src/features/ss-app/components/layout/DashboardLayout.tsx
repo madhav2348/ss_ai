@@ -2,6 +2,7 @@ import type { ThemeMode } from '../../app/App'
 import type { DashboardSection } from '../../app/routes'
 import type { UserSession } from '../../services/auth'
 import { useState } from 'react'
+import Image from 'next/image'
 import { AccountIcon, MoonIcon, SunIcon } from '../icons/NavigationIcons'
 import { CloudPage } from '../../pages/dashboard/CloudPage'
 import { LocalStoragePage } from '../../pages/dashboard/LocalStoragePage'
@@ -70,9 +71,11 @@ export function DashboardLayout({
                   aria-label="Open account menu"
                 >
                   {session?.picture ? (
-                    <img
+                    <Image 
                       src={session.picture}
-                      alt=""
+                      alt={`${session.name}'s profile picture`}
+                      width={32}
+                      height={32}
                       className="account-avatar"
                     />
                   ) : (

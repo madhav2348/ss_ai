@@ -32,4 +32,7 @@ export class InMemoryQueue<TPayload> {
   size(): number {
     return this.jobs.length;
   }
+  getById(id: string): QueueJob<TPayload> | undefined {
+  return this.jobs.find((job) => job.id === id);
+}
 }
