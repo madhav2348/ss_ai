@@ -11,6 +11,7 @@ import { OcrWorker } from "./services/workers/ocrWorker";
 import { SourceWorker } from "./services/workers/sourceWorker";
 import { TagWorker } from "./services/workers/tagWorker";
 import { VisionWorker } from "./services/workers/visionWorker";
+import { createQueueWorker } from "./services/workers/queueWorker";
 import { createApiServer } from "./server/api";
 import type { ScreenshotInput } from "./types/screenshot";
 
@@ -39,9 +40,9 @@ async function bootstrap(): Promise<void> {
     "screenshot.ingested",
     deviceWatcher.createMockInput(`${env.screenshotStorageDir}/sample.png`),
   );
-  await queue.process(async (job) => {
-    await pipeline.process(job.payload);
-  });
+
+  const worker = createQueueWorker(queue, pipeline);
+  await worker.trigger();
 
   const server = createApiServer({ pipeline, repository, queue });
   server.listen(env.port, () => {

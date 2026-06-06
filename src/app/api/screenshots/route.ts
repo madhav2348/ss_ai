@@ -8,7 +8,7 @@ import type { ScreenshotInput } from "@/server/types/screenshot";
 
 export async function GET() {
   const { repository } = await getServerRuntime();
-  const records = await repository.list();
+  const records = await repository.findAll();
   return NextResponse.json(records);
 }
 
@@ -50,10 +50,13 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    const { queue } = await getServerRuntime();
+    const { queue, workerTrigger } = await getServerRuntime();
     await queue.enqueue("process-screenshot", input);
 
-    return NextResponse.json({ jobId: id, status: "queue" }, { status: 202 });
+    // Trigger the worker without awaiting it
+    void workerTrigger();
+
+    return NextResponse.json({ jobId: id, status: "queued" }, { status: 202 });
   } catch (err) {
     console.error("[POST /api/screenshots]", err);
     return NextResponse.json(

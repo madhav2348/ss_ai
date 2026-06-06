@@ -21,10 +21,26 @@ export class ScreenshotPipeline {
   ) {}
 
   async process(input: ScreenshotInput): Promise<ScreenshotAnalysis> {
-    const ocr = await this.ocrWorker.run(input);
-    const vision = await this.visionWorker.run(input);
-    const source = await this.sourceWorker.findSource(input, ocr, vision);
-    const tagging = await this.tagWorker.categorize(ocr, vision);
+    const timings: Record<string, number> = {};
+
+    const runStage = async <T>(name: string, fn: () => Promise<T>): Promise<T> => {
+      const start = Date.now();
+      try {
+        const result = await fn();
+        timings[name] = Date.now() - start;
+        console.log(`[Pipeline] ${name}: ${timings[name]}ms`);
+        return result;
+      } catch (error) {
+        const duration = Date.now() - start;
+        console.error(`[Pipeline] ${name} failed after ${duration}ms:`, error);
+        throw new Error(`Stage '${name}' failed: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    };
+
+    const ocr = await runStage("OCR", () => this.ocrWorker.run(input));
+    const vision = await runStage("Vision", () => this.visionWorker.run(input));
+    const source = await runStage("Source", () => this.sourceWorker.findSource(input, ocr, vision));
+    const tagging = await runStage("Tagging", () => this.tagWorker.categorize(ocr, vision));
 
     const analysis: ScreenshotAnalysis = {
       screenshot: input,
@@ -35,15 +51,22 @@ export class ScreenshotPipeline {
       processedAt: new Date().toISOString(),
     };
 
-    await this.repository.save(analysis);
-    await this.vectorIndex.upsert(analysis);
-    await this.processedStorage.saveJson(`${input.id}.json`, analysis);
+    await runStage("Repository", async () => {
+      await this.repository.save(analysis);
+    });
+    await runStage("Vector Index", async () => {
+      await this.vectorIndex.upsert(analysis);
+    });
+    await runStage("Processed Storage", async () => {
+      await this.processedStorage.saveJson(`${input.id}.json`, analysis);
+    });
 
+    console.log(`[Pipeline] Total processing time: ${Object.values(timings).reduce((a, b) => a + b, 0)}ms`);
     return analysis;
   }
 
   async exportRecords(): Promise<Buffer> {
-    const records = await this.repository.list();
+    const records = await this.repository.findAll();
     return this.exporter.export(records);
   }
 }
