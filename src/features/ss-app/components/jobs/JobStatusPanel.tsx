@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import {useEffect, useRef, useState } from 'react'
 
 export type JobStatus = 'queued' | 'processing' | 'processed' | 'failed'
 
@@ -60,31 +60,38 @@ export function JobStatusPanel() {
   const [fetchError, setFetchError] = useState<string | null>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const poll = useCallback(async () => {
-    try {
-      const all = await fetchJobs()
-      setJobs(all)
-      setFetchError(null)
-
-      const hasActive = all.some(
-        (j) => j.status === 'queued' || j.status === 'processing',
-      )
-      timerRef.current = setTimeout(
-        poll,
-        hasActive ? POLL_ACTIVE_MS : POLL_IDLE_MS,
-      )
-    } catch {
-      setFetchError('Could not load job status.')
-      timerRef.current = setTimeout(poll, POLL_IDLE_MS)
-    }
-  }, [])
+  const pollRef = useRef<(() => Promise<void>) | null>(null)
 
   useEffect(() => {
+    async function poll() {
+      try {
+        const all = await fetchJobs()
+        setJobs(all)
+        setFetchError(null)
+
+        const hasActive = all.some(
+          (j) => j.status === 'queued' || j.status === 'processing',
+        )
+        timerRef.current = setTimeout(
+          () => { void pollRef.current?.() },
+          hasActive ? POLL_ACTIVE_MS : POLL_IDLE_MS,
+        )
+      } catch {
+        setFetchError('Could not load job status.')
+        timerRef.current = setTimeout(
+          () => { void pollRef.current?.() },
+          POLL_IDLE_MS,
+        )
+      }
+    }
+
+    pollRef.current = poll
     void poll()
+
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current)
     }
-  }, [poll])
+  }, [])
 
   if (jobs.length === 0 && !fetchError) return null
 
@@ -102,9 +109,9 @@ export function JobStatusPanel() {
             key={job.jobId}
             job={job}
             onRetry={async () => {
-              await retryJob(job.jobId)
-              void poll()
-            }}
+                await retryJob(job.jobId)
+                void pollRef.current?.()
+              }}
           />
         ))}
       </div>

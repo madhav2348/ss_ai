@@ -37,7 +37,7 @@ async function bootstrap(): Promise<void> {
   );
 
   const deviceWatcher = new DeviceWatcher();
-  const job = await queue.enqueue(
+  await queue.enqueue(
     "screenshot.ingested",
     deviceWatcher.createMockInput(`${env.screenshotStorageDir}/sample.png`),
   );
