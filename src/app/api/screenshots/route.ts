@@ -7,13 +7,12 @@ import { env } from "@/server/config/env";
 import type { ScreenshotInput } from "@/server/types/screenshot";
 
 export async function GET() {
-  const { repository } = await getServerRuntime();
-  const records = await repository.list();
-  return NextResponse.json(records);
+  const { queue } = await getServerRuntime();
+  return NextResponse.json(queue.list());
 }
 
 export async function POST(req: NextRequest) {
-  try{
+  try {
     const formData = await req.formData();
 
     const file = formData.get("file") as File | null;
@@ -22,10 +21,10 @@ export async function POST(req: NextRequest) {
     const description = formData.get("description") as string | null;
     const originalFileName = formData.get("originalFileName") as string | null;
 
-    if(!file || !sourceType ) {
+    if (!file || !sourceType) {
       return NextResponse.json(
-        { error: "file and sourceType are required"},
-        { status: 400 }
+        { error: "file and sourceType are required" },
+        { status: 400 },
       );
     }
 
@@ -50,15 +49,18 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    const { queue } = await getServerRuntime();
-    await queue.enqueue("process-screenshot", input);
+    const { queue, drainQueue } = await getServerRuntime();
+    const job = await queue.enqueue("process-screenshot", input);
 
-    return NextResponse.json({ jobId: id, status: "queue" }, { status: 202 });
+    // kick off processing in background
+    void drainQueue();
+
+    return NextResponse.json(
+      { jobId: job.id, status: job.status },
+      { status: 202 },
+    );
   } catch (err) {
     console.error("[POST /api/screenshots]", err);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

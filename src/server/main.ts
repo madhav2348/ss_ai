@@ -1,5 +1,6 @@
 import { env } from "./config/env";
-import { SqliteScreenshotRepository } from "./database/SqliteScreenshotRepository";import { XlsxExporter } from "./exports/xlsxExporter";
+import { SqliteScreenshotRepository } from "./database/SqliteScreenshotRepository";
+import { XlsxExporter } from "./exports/xlsxExporter";
 import { FilesystemStorage } from "./storage/filesystem";
 import { PaddleOcrClient } from "./services/ai/ocr/paddle";
 import { VisionAgent } from "./services/ai/vision/visionAgent";
@@ -32,15 +33,16 @@ async function bootstrap(): Promise<void> {
     vectorIndex,
     processedStorage,
     new XlsxExporter(),
+    queue,
   );
 
   const deviceWatcher = new DeviceWatcher();
-  await queue.enqueue(
+  const job = await queue.enqueue(
     "screenshot.ingested",
     deviceWatcher.createMockInput(`${env.screenshotStorageDir}/sample.png`),
   );
-  await queue.process(async (job) => {
-    await pipeline.process(job.payload);
+  await queue.process(async (j) => {
+    await pipeline.process(j.payload, j.id);
   });
 
   const server = createApiServer({ pipeline, repository, queue });
