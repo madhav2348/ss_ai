@@ -1,6 +1,5 @@
 import { env } from "./config/env";
-import { ScreenshotRepository } from "./database/schema";
-import { XlsxExporter } from "./exports/xlsxExporter";
+import { SqliteScreenshotRepository } from "./database/SqliteScreenshotRepository";import { XlsxExporter } from "./exports/xlsxExporter";
 import { FilesystemStorage } from "./storage/filesystem";
 import { PaddleOcrClient } from "./services/ai/ocr/paddle";
 import { VisionAgent } from "./services/ai/vision/visionAgent";
@@ -21,7 +20,7 @@ async function bootstrap(): Promise<void> {
   await screenshotStorage.ensure();
   await processedStorage.ensure();
 
-  const repository = new ScreenshotRepository();
+  const repository = new SqliteScreenshotRepository();
   const vectorIndex = new VectorIndex();
   const queue = new InMemoryQueue<ScreenshotInput>();
   const pipeline = new ScreenshotPipeline(

@@ -45,6 +45,7 @@
   min-width: 180px;
   padding: 16px 24px;
   border-radius: 999px;
+  font-weight: 600;
   color: var(--surface);
   background: var(--primary);
 }
