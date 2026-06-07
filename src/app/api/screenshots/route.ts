@@ -30,22 +30,31 @@ export async function POST(req: NextRequest) {
     }
 
     const id = randomUUID();
-    const ext = path.extname(file.name) || ".png";
-    const fileName = `${id}${ext}`;
+    const originalName = originalFileName ?? file.name;
+    const ext = path.extname(originalName) || ".png";
+    const fileName = `${id}_${path.basename(originalName, ext)}${ext}`;
     const storagePath = path.join(env.screenshotStorageDir, fileName);
 
     await mkdir(env.screenshotStorageDir, { recursive: true });
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(storagePath, buffer);
+    
+    // Stream uploaded file directly to disk to minimize memory footprint
+    const { pipeline } = await import("node:stream/promises");
+    const { createWriteStream } = await import("node:fs");
+    const { Readable } = await import("node:stream");
+    
+    // Convert Web ReadableStream to Node Readable
+    // @ts-expect-error Types for stream/web are partially overlapping in Node vs DOM
+    const nodeStream = Readable.fromWeb(file.stream());
+    await pipeline(nodeStream, createWriteStream(storagePath));
 
     const input: ScreenshotInput = {
       id,
       sourceType: sourceType as ScreenshotInput["sourceType"],
-      sourceRef: sourceRef ?? fileName,
-      filePath: storagePath,
+      sourceRef: sourceRef ?? originalName,
+      storagePath,
       createdAt: new Date().toISOString(),
       metadata: {
-        originalFileName: originalFileName ?? file.name,
+        originalFileName: originalName,
         description: description ?? undefined,
       },
     };
