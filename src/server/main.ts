@@ -11,6 +11,8 @@ import { OcrWorker } from "./services/workers/ocrWorker";
 import { SourceWorker } from "./services/workers/sourceWorker";
 import { TagWorker } from "./services/workers/tagWorker";
 import { VisionWorker } from "./services/workers/visionWorker";
+import { DownloadWorker } from "./services/workers/downloadWorker";
+import { createQueueWorker } from "./services/workers/queueWorker";
 import { createApiServer } from "./server/api";
 import type { ScreenshotInput } from "./types/screenshot";
 
@@ -24,6 +26,7 @@ async function bootstrap(): Promise<void> {
   const vectorIndex = new VectorIndex();
   const queue = new InMemoryQueue<ScreenshotInput>();
   const pipeline = new ScreenshotPipeline(
+    new DownloadWorker(),
     new OcrWorker(new PaddleOcrClient()),
     new VisionWorker(new VisionAgent()),
     new SourceWorker(),
@@ -39,9 +42,9 @@ async function bootstrap(): Promise<void> {
     "screenshot.ingested",
     deviceWatcher.createMockInput(`${env.screenshotStorageDir}/sample.png`),
   );
-  await queue.process(async (job) => {
-    await pipeline.process(job.payload);
-  });
+
+  const worker = createQueueWorker(queue, pipeline);
+  await worker.trigger();
 
   const server = createApiServer({ pipeline, repository, queue });
   server.listen(env.port, () => {

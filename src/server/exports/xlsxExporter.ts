@@ -8,7 +8,7 @@ export class XlsxExporter {
         [
           record.screenshot.id,
           record.screenshot.sourceType,
-          JSON.stringify(record.screenshot.filePath),
+          JSON.stringify(record.screenshot.storagePath ?? ""),
           JSON.stringify(record.tagging.categories.join("|")),
           JSON.stringify(record.source.sourceName ?? ""),
           record.processedAt,

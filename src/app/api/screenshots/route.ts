@@ -50,8 +50,16 @@ export async function POST(req: NextRequest) {
     const storagePath = path.join(env.screenshotStorageDir, fileName);
 
     await mkdir(env.screenshotStorageDir, { recursive: true });
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(storagePath, buffer);
+    
+    // Stream uploaded file directly to disk to minimize memory footprint
+    const { pipeline } = await import("node:stream/promises");
+    const { createWriteStream } = await import("node:fs");
+    const { Readable } = await import("node:stream");
+    
+    // Convert Web ReadableStream to Node Readable
+    // @ts-expect-error Types for stream/web are partially overlapping in Node vs DOM
+    const nodeStream = Readable.fromWeb(file.stream());
+    await pipeline(nodeStream, createWriteStream(storagePath));
 
     const input: ScreenshotInput = {
       id,
