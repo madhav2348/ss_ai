@@ -247,3 +247,6 @@ ai-screenshot-agent
 └── server
     └── api.ts
 ```
+## Testing
+
+See TESTING.md for manual testing instructions.
