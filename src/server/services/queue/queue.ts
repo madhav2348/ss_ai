@@ -4,8 +4,7 @@ import type { QueueJob } from "../../types/queue";
 type JobHandler<TPayload> = (job: QueueJob<TPayload>) => Promise<void>;
 
 export class InMemoryQueue<TPayload> {
-  private readonly jobs: Map<string, QueueJob<TPayload>> = new Map();
-  private readonly queue: string[] = [];
+  private readonly jobs: QueueJob<TPayload>[] = [];
 
   async enqueue(name: string, payload: TPayload): Promise<QueueJob<TPayload>> {
     const job: QueueJob<TPayload> = {
@@ -13,24 +12,17 @@ export class InMemoryQueue<TPayload> {
       name,
       payload,
       createdAt: new Date().toISOString(),
-      status: "queued",
     };
 
-    this.jobs.set(job.id, job);
-    this.queue.push(job.id);
+    this.jobs.push(job);
     return job;
   }
 
   async process(handler: JobHandler<TPayload>): Promise<void> {
-    while (this.queue.length > 0) {
-      const id = this.queue.shift();
-      if (!id) {
-        return;
-      }
-
-      const job = this.jobs.get(id);
+    while (this.jobs.length > 0) {
+      const job = this.jobs.shift();
       if (!job) {
-        continue;
+        return;
       }
 
       await handler(job);
@@ -38,14 +30,9 @@ export class InMemoryQueue<TPayload> {
   }
 
   size(): number {
-    return this.queue.length;
+    return this.jobs.length;
   }
-
   getById(id: string): QueueJob<TPayload> | undefined {
-    return this.jobs.get(id);
-  }
-
-  list(): QueueJob<TPayload>[] {
-    return Array.from(this.jobs.values());
-  }
+  return this.jobs.find((job) => job.id === id);
+}
 }

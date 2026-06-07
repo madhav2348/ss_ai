@@ -68,42 +68,30 @@ export async function POST(req: NextRequest) {
     }
 
     const id = randomUUID();
-    const originalName = originalFileName ?? file.name;
-    const ext = path.extname(originalName) || ".png";
-    const fileName = `${id}_${path.basename(originalName, ext)}${ext}`;
+    const ext = path.extname(file.name) || ".png";
+    const fileName = `${id}${ext}`;
     const storagePath = path.join(env.screenshotStorageDir, fileName);
 
     await mkdir(env.screenshotStorageDir, { recursive: true });
-    
-    // Stream uploaded file directly to disk to minimize memory footprint
-    const { pipeline } = await import("node:stream/promises");
-    const { createWriteStream } = await import("node:fs");
-    const { Readable } = await import("node:stream");
-    
-    // Convert Web ReadableStream to Node Readable
-    // @ts-expect-error Types for stream/web are partially overlapping in Node vs DOM
-    const nodeStream = Readable.fromWeb(file.stream());
-    await pipeline(nodeStream, createWriteStream(storagePath));
+    const buffer = Buffer.from(await file.arrayBuffer());
+    await writeFile(storagePath, buffer);
 
     const input: ScreenshotInput = {
       id,
       sourceType: sourceType as ScreenshotInput["sourceType"],
-      sourceRef: sourceRef ?? originalName,
-      storagePath,
+      sourceRef: sourceRef ?? fileName,
+      filePath: storagePath,
       createdAt: new Date().toISOString(),
       metadata: {
-        originalFileName: originalName,
+        originalFileName: originalFileName ?? file.name,
         description: description ?? undefined,
       },
     };
 
-    const { queue, workerTrigger } = await getServerRuntime();
+    const { queue } = await getServerRuntime();
     await queue.enqueue("process-screenshot", input);
 
-    // Trigger the worker without awaiting it
-    void workerTrigger();
-
-    return NextResponse.json({ jobId: id, status: "queued" }, { status: 202 });
+    return NextResponse.json({ jobId: id, status: "queue" }, { status: 202 });
   } catch (err) {
     console.error("[POST /api/screenshots]", err);
     return NextResponse.json(
