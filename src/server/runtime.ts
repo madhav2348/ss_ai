@@ -20,6 +20,7 @@ const queue = new InMemoryQueue<ScreenshotInput>();
 const processedStorage = new FilesystemStorage(env.processedStorageDir);
 
 const pipeline = new ScreenshotPipeline(
+  new DownloadWorker(),
   new OcrWorker(new PaddleOcrClient()),
   new VisionWorker(new VisionAgent()),
   new SourceWorker(),
