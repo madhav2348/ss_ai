@@ -25,6 +25,7 @@ async function bootstrap(): Promise<void> {
   const vectorIndex = new VectorIndex();
   const queue = new InMemoryQueue<ScreenshotInput>();
   const pipeline = new ScreenshotPipeline(
+    new DownloadWorker(),
     new OcrWorker(new PaddleOcrClient()),
     new VisionWorker(new VisionAgent()),
     new SourceWorker(),

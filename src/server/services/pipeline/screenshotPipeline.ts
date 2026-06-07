@@ -6,10 +6,12 @@ import { OcrWorker } from "../workers/ocrWorker";
 import { SourceWorker } from "../workers/sourceWorker";
 import { TagWorker } from "../workers/tagWorker";
 import { VisionWorker } from "../workers/visionWorker";
+import { DownloadWorker } from "../workers/downloadWorker";
 import type { ScreenshotAnalysis, ScreenshotInput } from "../../types/screenshot";
 
 export class ScreenshotPipeline {
   constructor(
+    private readonly downloadWorker: DownloadWorker,
     private readonly ocrWorker: OcrWorker,
     private readonly visionWorker: VisionWorker,
     private readonly sourceWorker: SourceWorker,
@@ -43,7 +45,7 @@ export class ScreenshotPipeline {
     const tagging = await runStage("Tagging", () => this.tagWorker.categorize(ocr, vision));
 
     const analysis: ScreenshotAnalysis = {
-      screenshot: input,
+      screenshot: downloadedInput,
       ocr,
       vision,
       source,

@@ -7,7 +7,7 @@ export class TelegramBotIngestion {
       id: createId("shot"),
       sourceType: "telegram",
       sourceRef: "telegram://message/mock",
-      filePath,
+      storagePath: filePath,
       createdAt: new Date().toISOString(),
       metadata: {
         description,
