@@ -1,3 +1,4 @@
+// src/server/types/queue.ts
 import type { ScreenshotInput } from "./screenshot";
 
 export type JobStatus = "queued" | "processing" | "processed" | "failed";
