@@ -37,7 +37,6 @@ const storageReady = processedStorage.ensure();
 
 export async function getServerRuntime() {
   await storageReady;
-
   return {
     pipeline,
     queue,
