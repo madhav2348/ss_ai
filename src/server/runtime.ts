@@ -9,6 +9,8 @@ import { OcrWorker } from "./services/workers/ocrWorker";
 import { SourceWorker } from "./services/workers/sourceWorker";
 import { TagWorker } from "./services/workers/tagWorker";
 import { VisionWorker } from "./services/workers/visionWorker";
+import { DownloadWorker } from "./services/workers/downloadWorker";
+import { createQueueWorker } from "./services/workers/queueWorker";
 import { FilesystemStorage } from "./storage/filesystem";
 import type { ScreenshotInput } from "./types/screenshot";
 import { env } from "./config/env";
@@ -19,6 +21,7 @@ const queue = new InMemoryQueue<ScreenshotInput>();
 const processedStorage = new FilesystemStorage(env.processedStorageDir);
 
 const pipeline = new ScreenshotPipeline(
+  new DownloadWorker(),
   new OcrWorker(new PaddleOcrClient()),
   new VisionWorker(new VisionAgent()),
   new SourceWorker(),
@@ -30,6 +33,7 @@ const pipeline = new ScreenshotPipeline(
   queue,
 );
 
+const worker = createQueueWorker(queue, pipeline);
 const storageReady = processedStorage.ensure();
 
 async function drainQueue(): Promise<void> {
