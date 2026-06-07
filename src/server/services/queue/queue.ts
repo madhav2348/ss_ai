@@ -1,38 +1,120 @@
 import { createId } from "../../utils/id";
-import type { QueueJob } from "../../types/queue";
+import {
+  isValidTransition,
+  toJobView,
+  type Job,
+  type JobStatus,
+  type JobView,
+  type PipelineStage,
+} from "../../types/queue";
+import type { ScreenshotInput } from "../../types/screenshot";
 
-type JobHandler<TPayload> = (job: QueueJob<TPayload>) => Promise<void>;
+type JobHandler = (job: Job) => Promise<void>;
 
-export class InMemoryQueue<TPayload> {
-  private readonly jobs: QueueJob<TPayload>[] = [];
+export class InMemoryQueue<TPayload extends ScreenshotInput = ScreenshotInput> {
+  private readonly store = new Map<string, Job>();
+  private readonly order: string[] = [];
 
-  async enqueue(name: string, payload: TPayload): Promise<QueueJob<TPayload>> {
-    const job: QueueJob<TPayload> = {
-      id: createId("job"),
+  async enqueue(name: string, payload: TPayload): Promise<Job> {
+    const job: Job = {
+      id:          createId("job"),
       name,
       payload,
-      createdAt: new Date().toISOString(),
+      status:      "queued",
+      stage:       null,
+      createdAt:   new Date(),
+      stageErrors: {},
     };
 
-    this.jobs.push(job);
+    this.store.set(job.id, job);
+    this.order.push(job.id);
     return job;
   }
 
-  async process(handler: JobHandler<TPayload>): Promise<void> {
-    while (this.jobs.length > 0) {
-      const job = this.jobs.shift();
-      if (!job) {
-        return;
-      }
+  updateStatus(
+    id: string,
+    to: JobStatus,
+    stage: PipelineStage = null,
+    error?: string,
+  ): void {
+    const job = this.store.get(id);
+    if (!job) return;
 
+    if (!isValidTransition(job.status, to)) {
+      console.warn(
+        `[Queue] Blocked invalid transition ${job.status} → ${to} for job ${id}`,
+      );
+      return;
+    }
+
+    job.status = to;
+    job.stage  = stage;
+
+    if (to === "processing" && !job.startedAt) {
+      job.startedAt = new Date();
+    }
+
+    if (to === "processed" || to === "failed") {
+      job.completedAt = new Date();
+    }
+
+    if (error) {
+      if (stage) {
+        job.stageErrors[stage] = error;
+      }
+      job.error = error;
+    }
+  }
+
+  retry(id: string): boolean {
+    const job = this.store.get(id);
+    if (!job) return false;
+
+    if (!isValidTransition(job.status, "queued")) {
+      return false;
+    }
+
+    job.status      = "queued";
+    job.stage       = null;
+    job.error       = undefined;
+    job.startedAt   = undefined;
+    job.completedAt = undefined;
+    job.stageErrors = {};
+    this.order.push(id);
+    return true;
+  }
+
+  async process(handler: JobHandler): Promise<void> {
+    while (this.order.length > 0) {
+      const id = this.order.shift();
+      if (!id) continue;
+      const job = this.store.get(id);
+      if (!job || job.status === "processed") continue;
       await handler(job);
     }
   }
 
-  size(): number {
-    return this.jobs.length;
+  getById(id: string): Job | undefined {
+    return this.store.get(id);
   }
-  getById(id: string): QueueJob<TPayload> | undefined {
-  return this.jobs.find((job) => job.id === id);
-}
+
+  list(statusFilter?: JobStatus[]): Job[] {
+    const all = Array.from(this.store.values()).sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+    );
+
+    if (statusFilter && statusFilter.length > 0) {
+      return all.filter((j) => statusFilter.includes(j.status));
+    }
+
+    return all;
+  }
+
+  listViews(statusFilter?: JobStatus[]): JobView[] {
+    return this.list(statusFilter).map(toJobView);
+  }
+
+  size(): number {
+    return this.order.length;
+  }
 }
