@@ -19,13 +19,12 @@ const ACCEPTED_EXTENSIONS = /\.(png|jpe?g|webp|heic|gif|bmp)$/i;
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 export async function GET() {
-  const { repository } = await getServerRuntime();
-  const records = await repository.findAll();
-  return NextResponse.json(records);
+  const { queue } = await getServerRuntime();
+  return NextResponse.json(queue.list());
 }
 
 export async function POST(req: NextRequest) {
-  try{
+  try {
     const formData = await req.formData();
 
     const file = formData.get("file") as File | null;
@@ -34,10 +33,10 @@ export async function POST(req: NextRequest) {
     const description = formData.get("description") as string | null;
     const originalFileName = formData.get("originalFileName") as string | null;
 
-    if(!file || !sourceType ) {
+    if (!file || !sourceType) {
       return NextResponse.json(
-        { error: "file and sourceType are required"},
-        { status: 400 }
+        { error: "file and sourceType are required" },
+        { status: 400 },
       );
     }
 
@@ -97,18 +96,18 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    const { queue, workerTrigger } = await getServerRuntime();
-    await queue.enqueue("process-screenshot", input);
+    const { queue, drainQueue } = await getServerRuntime();
+    const job = await queue.enqueue("process-screenshot", input);
 
-    // Trigger the worker without awaiting it
-    void workerTrigger();
+    // kick off processing in background
+    void drainQueue();
 
-    return NextResponse.json({ jobId: id, status: "queued" }, { status: 202 });
+    return NextResponse.json(
+      { jobId: job.id, status: job.status },
+      { status: 202 },
+    );
   } catch (err) {
     console.error("[POST /api/screenshots]", err);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
