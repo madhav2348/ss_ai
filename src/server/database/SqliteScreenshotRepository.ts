@@ -7,6 +7,36 @@ import type { IScreenshotRepository, RecordFilters } from "./IScreenshotReposito
 export class SqliteScreenshotRepository implements IScreenshotRepository {
   private readonly db: Database.Database;
 
+  async findByHash(hash: string): Promise<ScreenshotAnalysis | null> {
+  const stmt = this.db.prepare(
+    "SELECT record_json FROM screenshot_records WHERE file_hash = ?"
+  );
+
+  const row = stmt.get(hash) as
+    | { record_json: string }
+    | undefined;
+
+  return row
+    ? (JSON.parse(row.record_json) as ScreenshotAnalysis)
+    : null;
+}
+
+async findBySourceRef(
+  sourceRef: string
+): Promise<ScreenshotAnalysis | null> {
+  const stmt = this.db.prepare(
+    "SELECT record_json FROM screenshot_records WHERE source_ref = ?"
+  );
+
+  const row = stmt.get(sourceRef) as
+    | { record_json: string }
+    | undefined;
+
+  return row
+    ? (JSON.parse(row.record_json) as ScreenshotAnalysis)
+    : null;
+}
+
   constructor(dbPath: string = path.join(process.cwd(), "data", "screenshots.db")) {
     // Ensure directory exists
     const dir = path.dirname(dbPath);
@@ -19,22 +49,29 @@ export class SqliteScreenshotRepository implements IScreenshotRepository {
   }
 
   private migrate(): void {
-    this.db.exec(`
-      CREATE TABLE IF NOT EXISTS screenshot_records (
-        id          TEXT PRIMARY KEY,
-        source_type TEXT NOT NULL,
-        source_ref  TEXT NOT NULL,
-        processed_at TEXT NOT NULL,
-        record_json TEXT NOT NULL
-      );
+  this.db.exec(`
+    CREATE TABLE IF NOT EXISTS screenshot_records (
+      id           TEXT PRIMARY KEY,
+      source_type  TEXT NOT NULL,
+      source_ref   TEXT,
+      file_hash    TEXT,
+      processed_at TEXT NOT NULL,
+      record_json  TEXT NOT NULL
+    );
 
-      CREATE INDEX IF NOT EXISTS idx_source_type
-        ON screenshot_records (source_type);
+    CREATE INDEX IF NOT EXISTS idx_source_type
+      ON screenshot_records (source_type);
 
-      CREATE INDEX IF NOT EXISTS idx_processed_at
-        ON screenshot_records (processed_at);
-    `);
-  }
+    CREATE INDEX IF NOT EXISTS idx_processed_at
+      ON screenshot_records (processed_at);
+
+    CREATE INDEX IF NOT EXISTS idx_source_ref
+      ON screenshot_records (source_ref);
+
+    CREATE INDEX IF NOT EXISTS idx_file_hash
+      ON screenshot_records (file_hash);
+  `);
+}
 
   async save(record: ScreenshotAnalysis): Promise<void> {
     const stmt = this.db.prepare(`
