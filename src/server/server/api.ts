@@ -24,7 +24,7 @@ export function createApiServer({ pipeline, repository, queue }: ApiServerDeps) 
     }
 
     if (req.method === "GET" && req.url === "/screenshots") {
-      const records = await repository.list();
+      const records = await repository.findAll();
       res.writeHead(200, { "content-type": "application/json" });
       res.end(JSON.stringify(records, null, 2));
       return;
