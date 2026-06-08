@@ -43,7 +43,7 @@ export class ScreenshotPipeline {
   }
 
   async exportRecords(): Promise<Buffer> {
-    const records = await this.repository.list();
+    const records = await this.repository.findAll();
     return this.exporter.export(records);
   }
 }
