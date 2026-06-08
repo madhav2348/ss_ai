@@ -42,6 +42,31 @@ export async function POST(req: NextRequest) {
     const fileHash = createHash("sha256")
       .update(buffer)
       .digest("hex");
+    
+    const { repository } = await getServerRuntime();
+
+    const existingHash = await repository.findByHash(fileHash);
+
+    if (existingHash) {
+      return NextResponse.json(
+        {
+          error: "Duplicate screenshot detected",
+    },
+    { status: 409 }
+  );
+}  
+    const existingSource = await repository.findBySourceRef(
+      sourceRef ?? file.name
+);
+
+    if (existingSource) {
+      return NextResponse.json(
+        {
+          error: "Duplicate source reference",
+    },
+    { status: 409 }
+  );
+}
 
     console.log("SHA-256 Hash:", fileHash);
 
