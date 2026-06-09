@@ -75,8 +75,8 @@ async findBySourceRef(
 
   async save(record: ScreenshotAnalysis): Promise<void> {
     const stmt = this.db.prepare(`
-      INSERT INTO screenshot_records (id, source_type, source_ref, processed_at, record_json)
-      VALUES (@id, @sourceType, @sourceRef, @processedAt, @recordJson)
+      INSERT INTO screenshot_records (id, source_type, source_ref, file_hash , processed_at, record_json)
+      VALUES (@id, @sourceType, @sourceRef,@fileHash, @processedAt, @recordJson)
       ON CONFLICT(id) DO UPDATE SET
         source_type  = excluded.source_type,
         source_ref   = excluded.source_ref,
@@ -88,6 +88,7 @@ async findBySourceRef(
       id:          record.screenshot.id,
       sourceType:  record.screenshot.sourceType,
       sourceRef:   record.screenshot.sourceRef,
+      fileHash:    record.screenshot.fileHash,
       processedAt: record.processedAt,
       recordJson:  JSON.stringify(record),
     });

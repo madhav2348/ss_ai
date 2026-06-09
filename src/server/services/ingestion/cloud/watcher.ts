@@ -8,6 +8,7 @@ export class CloudWatcher {
       sourceType: "cloud",
       sourceRef,
       filePath,
+      fileHash: "",
       createdAt: new Date().toISOString(),
       metadata: {
         originalFileName: filePath.split(/[\\/]/).at(-1),
