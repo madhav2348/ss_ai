@@ -77,6 +77,7 @@ export async function POST(req: NextRequest) {
       sourceType: sourceType as ScreenshotInput["sourceType"],
       sourceRef: sourceRef ?? fileName,
       filePath: storagePath,
+      fileHash,
       createdAt: new Date().toISOString(),
       metadata: {
         originalFileName: originalFileName ?? file.name,
