@@ -16,19 +16,12 @@ export function createQueueWorker(
 
     try {
       await queue.process(async (job) => {
-        job.status = "processing";
-        job.updatedAt = new Date().toISOString();
         console.log(`[QueueWorker] Started processing job ${job.id}`);
 
         try {
-          await pipeline.process(job.payload);
-          job.status = "processed";
-          job.updatedAt = new Date().toISOString();
+          await pipeline.process(job.payload, job.id);
           console.log(`[QueueWorker] Successfully processed job ${job.id}`);
         } catch (error) {
-          job.status = "failed";
-          job.updatedAt = new Date().toISOString();
-          job.error = error instanceof Error ? error.message : String(error);
           console.error(`[QueueWorker] Job ${job.id} failed:`, error);
         }
       });

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerRuntime } from "@/server/runtime";
 import { randomUUID } from "crypto";
-import { writeFile, mkdir } from "fs/promises";
+import { mkdir } from "fs/promises";
 import path from "path";
 import { env } from "@/server/config/env";
 import type { ScreenshotInput } from "@/server/types/screenshot";
