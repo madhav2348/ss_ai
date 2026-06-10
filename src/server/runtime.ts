@@ -37,15 +37,7 @@ const worker = createQueueWorker(queue, pipeline);
 const storageReady = processedStorage.ensure();
 
 async function drainQueue(): Promise<void> {
-  const active = queue.listActive();
-  if (active.length === 0) return;
-
-  const queued = active.filter((j) => j.status === "queued");
-  for (const job of queued) {
-    queue.updateStatus(job.id, "processing", "ocr");
-    pipeline.process(job.payload, job.id).catch(() => {
-    });
-  }
+  void worker.trigger();
 }
 
 export async function getServerRuntime() {
