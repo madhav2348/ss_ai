@@ -1,7 +1,7 @@
 import { env } from "./config/env";
 import { SqliteScreenshotRepository } from "./database/SqliteScreenshotRepository";
-import { XlsxExporter } from "./exports/xlsxExporter";
 import { FilesystemStorage } from "./storage/filesystem";
+import { XlsxExporter } from "./exports/xlsxExporter";
 import { PaddleOcrClient } from "./services/ai/ocr/paddle";
 import { VisionAgent } from "./services/ai/vision/visionAgent";
 import { VectorIndex } from "./services/ai/embeddings/vector";
@@ -19,10 +19,7 @@ import type { ScreenshotInput } from "./types/screenshot";
 
 async function bootstrap(): Promise<void> {
   const screenshotStorage = new FilesystemStorage(env.screenshotStorageDir);
-  const processedStorage = new FilesystemStorage(env.processedStorageDir);
   await screenshotStorage.ensure();
-  await processedStorage.ensure();
-
   const repository = new SqliteScreenshotRepository();
   const vectorIndex = new VectorIndex();
   const queue = new InMemoryQueue<ScreenshotInput>();
@@ -34,7 +31,6 @@ async function bootstrap(): Promise<void> {
     new TagWorker(),
     repository,
     vectorIndex,
-    processedStorage,
     new XlsxExporter(),
     queue,
   );

@@ -11,14 +11,12 @@ import { TagWorker } from "./services/workers/tagWorker";
 import { VisionWorker } from "./services/workers/visionWorker";
 import { DownloadWorker } from "./services/workers/downloadWorker";
 import { createQueueWorker } from "./services/workers/queueWorker";
-import { FilesystemStorage } from "./storage/filesystem";
 import type { ScreenshotInput } from "./types/screenshot";
 import { env } from "./config/env";
 
 const repository = new SqliteScreenshotRepository();
 const vectorIndex = new VectorIndex();
 const queue = new InMemoryQueue<ScreenshotInput>();
-const processedStorage = new FilesystemStorage(env.processedStorageDir);
 
 const pipeline = new ScreenshotPipeline(
   new DownloadWorker(),
@@ -28,13 +26,11 @@ const pipeline = new ScreenshotPipeline(
   new TagWorker(),
   repository,
   vectorIndex,
-  processedStorage,
   new XlsxExporter(),
   queue,
 );
 
 const worker = createQueueWorker(queue, pipeline);
-const storageReady = processedStorage.ensure();
 
 async function drainQueue(): Promise<void> {
   const active = queue.listActive();
@@ -49,7 +45,6 @@ async function drainQueue(): Promise<void> {
 }
 
 export async function getServerRuntime() {
-  await storageReady;
   return {
     pipeline,
     queue,

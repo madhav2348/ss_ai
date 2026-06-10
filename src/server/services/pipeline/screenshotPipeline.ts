@@ -1,6 +1,5 @@
 import type { IScreenshotRepository } from "../../database/IScreenshotRepository";
 import { XlsxExporter } from "../../exports/xlsxExporter";
-import { FilesystemStorage } from "../../storage/filesystem";
 import { VectorIndex } from "../ai/embeddings/vector";
 import { OcrWorker } from "../workers/ocrWorker";
 import { SourceWorker } from "../workers/sourceWorker";
@@ -19,7 +18,6 @@ export class ScreenshotPipeline {
     private readonly tagWorker: TagWorker,
     private readonly repository: IScreenshotRepository,
     private readonly vectorIndex: VectorIndex,
-    private readonly processedStorage: FilesystemStorage,
     private readonly exporter: XlsxExporter,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private readonly queue?: InMemoryQueue<any>,
@@ -60,7 +58,6 @@ export class ScreenshotPipeline {
 
       await this.repository.save(analysis);
       await this.vectorIndex.upsert(analysis);
-      await this.processedStorage.saveJson(`${input.id}.json`, analysis);
 
       if (jobId && this.queue) {
         this.queue.updateStatus(jobId, "processed", null);
