@@ -35,9 +35,10 @@ export class ScreenshotPipeline {
       }
     };
 
-    try {
-      tick("ocr");
-      const ocr = await this.ocrWorker.run(input);
+    const ocr = await runStage("OCR", () => this.ocrWorker.run(input));
+    const vision = await runStage("Vision", () => this.visionWorker.run(input));
+    const source = await runStage("Source", () => this.sourceWorker.findSource(input, ocr, vision));
+    const tagging = await runStage("Tagging", () => this.tagWorker.categorize(ocr, vision));
 
       tick("vision");
       const vision = await this.visionWorker.run(input);
