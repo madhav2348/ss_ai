@@ -15,12 +15,22 @@ import { FilesystemStorage } from "./storage/filesystem";
 import type { ScreenshotInput } from "./types/screenshot";
 import { env } from "./config/env";
 
-const repository = new SqliteScreenshotRepository();
-const vectorIndex = new VectorIndex();
-const queue = new InMemoryQueue<ScreenshotInput>();
-const processedStorage = new FilesystemStorage(env.processedStorageDir);
+const globalForRuntime = globalThis as unknown as {
+  repository?: SqliteScreenshotRepository;
+  vectorIndex?: VectorIndex;
+  queue?: InMemoryQueue<ScreenshotInput>;
+  processedStorage?: FilesystemStorage;
+  pipeline?: ScreenshotPipeline;
+  storageReady?: Promise<void>;
+  worker?: ReturnType<typeof createQueueWorker>;
+};
 
-const pipeline = new ScreenshotPipeline(
+const repository = globalForRuntime.repository ?? new SqliteScreenshotRepository();
+const vectorIndex = globalForRuntime.vectorIndex ?? new VectorIndex();
+const queue = globalForRuntime.queue ?? new InMemoryQueue<ScreenshotInput>();
+const processedStorage = globalForRuntime.processedStorage ?? new FilesystemStorage(env.processedStorageDir);
+
+const pipeline = globalForRuntime.pipeline ?? new ScreenshotPipeline(
   new DownloadWorker(),
   new OcrWorker(new PaddleOcrClient()),
   new VisionWorker(new VisionAgent()),
@@ -33,19 +43,21 @@ const pipeline = new ScreenshotPipeline(
   queue,
 );
 
-const worker = createQueueWorker(queue, pipeline);
-const storageReady = processedStorage.ensure();
+const worker = globalForRuntime.worker ?? createQueueWorker(queue, pipeline);
+const storageReady = globalForRuntime.storageReady ?? processedStorage.ensure();
+
+if (env.nodeEnv !== "production") {
+  globalForRuntime.repository = repository;
+  globalForRuntime.vectorIndex = vectorIndex;
+  globalForRuntime.queue = queue;
+  globalForRuntime.processedStorage = processedStorage;
+  globalForRuntime.pipeline = pipeline;
+  globalForRuntime.storageReady = storageReady;
+  globalForRuntime.worker = worker;
+}
 
 async function drainQueue(): Promise<void> {
-  const active = queue.listActive();
-  if (active.length === 0) return;
-
-  const queued = active.filter((j) => j.status === "queued");
-  for (const job of queued) {
-    queue.updateStatus(job.id, "processing", "ocr");
-    pipeline.process(job.payload, job.id).catch(() => {
-    });
-  }
+  void worker.trigger();
 }
 
 export async function getServerRuntime() {
