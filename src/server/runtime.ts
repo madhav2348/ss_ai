@@ -9,6 +9,7 @@ import { OcrWorker } from "./services/workers/ocrWorker";
 import { SourceWorker } from "./services/workers/sourceWorker";
 import { TagWorker } from "./services/workers/tagWorker";
 import { VisionWorker } from "./services/workers/visionWorker";
+import { DownloadWorker } from "./services/workers/downloadWorker";
 import { createQueueWorker } from "./services/workers/queueWorker";
 import { FilesystemStorage } from "./storage/filesystem";
 import type { ScreenshotInput } from "./types/screenshot";

@@ -39,9 +39,10 @@ export class ScreenshotPipeline {
       }
     };
 
-    const ocr = await runStage("OCR", () => this.ocrWorker.run(input));
-    const vision = await runStage("Vision", () => this.visionWorker.run(input));
-    const source = await runStage("Source", () => this.sourceWorker.findSource(input, ocr, vision));
+    const downloadedInput = await runStage("Download", () => this.downloadWorker.downloadIfNeeded(input));
+    const ocr = await runStage("OCR", () => this.ocrWorker.run(downloadedInput));
+    const vision = await runStage("Vision", () => this.visionWorker.run(downloadedInput));
+    const source = await runStage("Source", () => this.sourceWorker.findSource(downloadedInput, ocr, vision));
     const tagging = await runStage("Tagging", () => this.tagWorker.categorize(ocr, vision));
 
     const analysis: ScreenshotAnalysis = {
