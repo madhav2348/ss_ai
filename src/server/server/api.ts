@@ -1,13 +1,13 @@
 import http from "node:http";
-import type { ScreenshotRepository } from "../database/schema";
+import type { IScreenshotRepository } from "../database/IScreenshotRepository";
 import type { ScreenshotPipeline } from "../services/pipeline/screenshotPipeline";
 import type { InMemoryQueue } from "../services/queue/queue";
-import type { ScreenshotJob } from "../types/queue";
+import type { ScreenshotInput } from "../types/screenshot";
 
 export interface ApiServerDeps {
   pipeline: ScreenshotPipeline;
-  repository: ScreenshotRepository;
-  queue: InMemoryQueue<ScreenshotJob["payload"]>;
+  repository: IScreenshotRepository;
+  queue: InMemoryQueue<ScreenshotInput>;
 }
 
 export function createApiServer({ pipeline, repository, queue }: ApiServerDeps) {

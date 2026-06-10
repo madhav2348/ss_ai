@@ -1,4 +1,4 @@
-import { ScreenshotRepository } from "../../database/schema";
+import type { IScreenshotRepository } from "../../database/IScreenshotRepository";
 import { XlsxExporter } from "../../exports/xlsxExporter";
 import { FilesystemStorage } from "../../storage/filesystem";
 import { VectorIndex } from "../ai/embeddings/vector";
@@ -8,6 +8,7 @@ import { TagWorker } from "../workers/tagWorker";
 import { VisionWorker } from "../workers/visionWorker";
 import { DownloadWorker } from "../workers/downloadWorker";
 import type { ScreenshotAnalysis, ScreenshotInput } from "../../types/screenshot";
+import type { InMemoryQueue } from "../queue/queue";
 
 export class ScreenshotPipeline {
   constructor(
@@ -16,56 +17,67 @@ export class ScreenshotPipeline {
     private readonly visionWorker: VisionWorker,
     private readonly sourceWorker: SourceWorker,
     private readonly tagWorker: TagWorker,
-    private readonly repository: ScreenshotRepository,
+    private readonly repository: IScreenshotRepository,
     private readonly vectorIndex: VectorIndex,
     private readonly processedStorage: FilesystemStorage,
     private readonly exporter: XlsxExporter,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private readonly queue?: InMemoryQueue<any>,
   ) {}
 
-  async process(input: ScreenshotInput): Promise<ScreenshotAnalysis> {
-    const timings: Record<string, number> = {};
-
-    const runStage = async <T>(name: string, fn: () => Promise<T>): Promise<T> => {
-      const start = Date.now();
-      try {
-        const result = await fn();
-        timings[name] = Date.now() - start;
-        console.log(`[Pipeline] ${name}: ${timings[name]}ms`);
-        return result;
-      } catch (error) {
-        const duration = Date.now() - start;
-        console.error(`[Pipeline] ${name} failed after ${duration}ms:`, error);
-        throw new Error(`Stage '${name}' failed: ${error instanceof Error ? error.message : String(error)}`);
+  async process(
+    input: ScreenshotInput,
+    jobId?: string,
+  ): Promise<ScreenshotAnalysis> {
+    const tick = (stage: Parameters<InMemoryQueue<unknown>["updateStatus"]>[2]) => {
+      if (jobId && this.queue) {
+        this.queue.updateStatus(jobId, "processing", stage);
       }
     };
 
-    const downloadedInput = await runStage("Download", () => this.downloadWorker.downloadIfNeeded(input));
-    const ocr = await runStage("OCR", () => this.ocrWorker.run(downloadedInput));
-    const vision = await runStage("Vision", () => this.visionWorker.run(downloadedInput));
-    const source = await runStage("Source", () => this.sourceWorker.findSource(downloadedInput, ocr, vision));
-    const tagging = await runStage("Tagging", () => this.tagWorker.categorize(ocr, vision));
+    try {
+      tick("ocr");
+      const ocr = await this.ocrWorker.run(input);
 
-    const analysis: ScreenshotAnalysis = {
-      screenshot: downloadedInput,
-      ocr,
-      vision,
-      source,
-      tagging,
-      processedAt: new Date().toISOString(),
-    };
+      tick("vision");
+      const vision = await this.visionWorker.run(input);
 
-    await runStage("Repository", async () => {
+      tick("source");
+      const source = await this.sourceWorker.findSource(input, ocr, vision);
+
+      tick("tagging");
+      const tagging = await this.tagWorker.categorize(ocr, vision);
+
+      tick("storing");
+      const analysis: ScreenshotAnalysis = {
+        screenshot: input,
+        ocr,
+        vision,
+        source,
+        tagging,
+        processedAt: new Date().toISOString(),
+      };
+
       await this.repository.save(analysis);
-    });
-    await runStage("Vector Index", async () => {
       await this.vectorIndex.upsert(analysis);
-    });
-    await runStage("Processed Storage", async () => {
       await this.processedStorage.saveJson(`${input.id}.json`, analysis);
-    });
 
-    console.log(`[Pipeline] Total processing time: ${Object.values(timings).reduce((a, b) => a + b, 0)}ms`);
-    return analysis;
+      if (jobId && this.queue) {
+        this.queue.updateStatus(jobId, "processed", null);
+      }
+
+      return analysis;
+    } catch (err) {
+      if (jobId && this.queue) {
+        this.queue.updateStatus(
+          jobId,
+          "failed",
+          null,
+          err instanceof Error ? err.message : "Unknown error",
+        );
+      }
+      throw err;
+    }
   }
 
   async exportRecords(): Promise<Buffer> {
