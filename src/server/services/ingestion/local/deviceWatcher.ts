@@ -7,8 +7,7 @@ export class DeviceWatcher {
       id: createId("shot"),
       sourceType: "local",
       sourceRef: "device://screenshots/mock",
-      filePath,
-      fileHash: "",
+      storagePath: filePath,
       createdAt: new Date().toISOString(),
       metadata: {
         originalFileName: filePath.split(/[\\/]/).at(-1),
