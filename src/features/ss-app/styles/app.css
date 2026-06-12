@@ -555,3 +555,164 @@
     right: 16px;
   }
 }
+
+/* ── Job Status Panel ─────────────────────────────────────────── */
+
+.job-status-panel {
+  display: grid;
+  gap: 14px;
+  padding: 20px 24px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-soft);
+}
+
+.job-list {
+  display: grid;
+  gap: 8px;
+}
+
+.job-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  transition: border-color 0.2s;
+}
+
+.job-row--processing {
+  border-color: var(--primary);
+}
+
+.job-row--processed {
+  border-color: #2e7d52;
+}
+
+.job-row--failed {
+  border-color: #b3261e;
+}
+
+/* Indicator column */
+.job-indicator {
+  flex: 0 0 22px;
+  display: grid;
+  place-items: center;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(111, 66, 217, 0.45); }
+  70%  { box-shadow: 0 0 0 6px rgba(111, 66, 217, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(111, 66, 217, 0); }
+}
+
+.job-spinner {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  border-top-color: var(--muted);
+}
+
+.job-spinner--active {
+  border-top-color: var(--primary);
+  animation: spin 0.9s linear infinite, pulse-ring 1.8s ease-out infinite;
+}
+
+.job-check {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #2e7d52;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.job-fail {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #b3261e;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+/* Body column */
+.job-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.job-id {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-family: 'Courier New', monospace;
+  white-space: nowrap;
+}
+
+.job-label {
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.job-label--active {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.job-label--done {
+  color: #2e7d52;
+  font-weight: 600;
+}
+
+.job-label--error {
+  color: #b3261e;
+  max-width: 40ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.job-time {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* Retry button */
+.job-retry-btn {
+  flex: 0 0 auto;
+  font: inherit;
+  cursor: pointer;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid #b3261e;
+  color: #b3261e;
+  background: transparent;
+  font-size: 0.84rem;
+  font-weight: 600;
+  transition: background 0.15s, color 0.15s;
+}
+
+.job-retry-btn:hover {
+  background: #b3261e;
+  color: #fff;
+}

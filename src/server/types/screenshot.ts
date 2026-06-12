@@ -12,8 +12,7 @@ export interface ScreenshotInput {
   id: string;
   sourceType: ScreenshotSourceType;
   sourceRef: string;
-  filePath: string;
-  fileHash: string;
+  storagePath?: string;
   createdAt: string;
   metadata: ScreenshotMetadata;
 }

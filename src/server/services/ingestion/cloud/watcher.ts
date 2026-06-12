@@ -7,8 +7,7 @@ export class CloudWatcher {
       id: createId("shot"),
       sourceType: "cloud",
       sourceRef,
-      filePath,
-      fileHash: "",
+      storagePath: filePath,
       createdAt: new Date().toISOString(),
       metadata: {
         originalFileName: filePath.split(/[\\/]/).at(-1),
