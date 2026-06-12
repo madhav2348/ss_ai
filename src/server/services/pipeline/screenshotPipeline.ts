@@ -27,28 +27,79 @@ export class ScreenshotPipeline {
     input: ScreenshotInput,
     jobId?: string,
   ): Promise<ScreenshotAnalysis> {
-    const tick = (stage: Parameters<InMemoryQueue<unknown>["updateStatus"]>[2]) => {
+    const timings: Record<string, number> = {};
+
+    const tick = (
+      stage: Parameters<InMemoryQueue<unknown>["updateStatus"]>[2],
+    ) => {
       if (jobId && this.queue) {
         this.queue.updateStatus(jobId, "processing", stage);
       }
     };
 
+    const runStage = async <T>(
+      name: string,
+      fn: () => Promise<T>,
+      stageEnum?: Parameters<InMemoryQueue<unknown>["updateStatus"]>[2],
+    ): Promise<T> => {
+      const start = Date.now();
+
+      if (stageEnum) {
+        tick(stageEnum);
+      }
+
+      try {
+        const result = await fn();
+        timings[name] = Date.now() - start;
+        console.log(`[Pipeline] ${name}: ${timings[name]}ms`);
+        return result;
+      } catch (error) {
+        const duration = Date.now() - start;
+        console.error(
+          `[Pipeline] ${name} failed after ${duration}ms:`,
+          error,
+        );
+
+        throw new Error(
+          `Stage '${name}' failed: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        );
+      }
+    };
+
     try {
-      tick("ocr");
-      const ocr = await this.ocrWorker.run(input);
+      const downloadedInput = await runStage(
+        "Download",
+        () => this.downloadWorker.downloadIfNeeded(input),
+      );
 
-      tick("vision");
-      const vision = await this.visionWorker.run(input);
+      const ocr = await runStage(
+        "OCR",
+        () => this.ocrWorker.run(downloadedInput),
+        "ocr",
+      );
 
-      tick("source");
-      const source = await this.sourceWorker.findSource(input, ocr, vision);
+      const vision = await runStage(
+        "Vision",
+        () => this.visionWorker.run(downloadedInput),
+        "vision",
+      );
 
-      tick("tagging");
-      const tagging = await this.tagWorker.categorize(ocr, vision);
+      const source = await runStage(
+        "Source",
+        () => this.sourceWorker.findSource(downloadedInput, ocr, vision),
+        "source",
+      );
 
-      tick("storing");
+      const tagging = await runStage(
+        "Tagging",
+        () => this.tagWorker.categorize(ocr, vision),
+        "tagging",
+      );
+
       const analysis: ScreenshotAnalysis = {
-        screenshot: input,
+        screenshot: downloadedInput,
         ocr,
         vision,
         source,
@@ -56,8 +107,23 @@ export class ScreenshotPipeline {
         processedAt: new Date().toISOString(),
       };
 
-      await this.repository.save(analysis);
-      await this.vectorIndex.upsert(analysis);
+      tick("storing");
+
+      await runStage(
+        "Repository",
+        () => this.repository.save(analysis),
+      );
+
+      await runStage(
+        "Vector Index",
+        () => this.vectorIndex.upsert(analysis),
+      );
+
+      console.log(
+        `[Pipeline] Total processing time: ${
+          Object.values(timings).reduce((a, b) => a + b, 0)
+        }ms`,
+      );
 
       if (jobId && this.queue) {
         this.queue.updateStatus(jobId, "processed", null);
@@ -73,6 +139,7 @@ export class ScreenshotPipeline {
           err instanceof Error ? err.message : "Unknown error",
         );
       }
+
       throw err;
     }
   }
