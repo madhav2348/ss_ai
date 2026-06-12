@@ -1,20 +1,13 @@
 import Database from "better-sqlite3";
-import path from "node:path";
-import fs from "node:fs";
 import type { ScreenshotAnalysis } from "../types/screenshot";
 import type { IScreenshotRepository, RecordFilters } from "./IScreenshotRepository";
+import { db as defaultDb } from "../db/client";
 
 export class SqliteScreenshotRepository implements IScreenshotRepository {
   private readonly db: Database.Database;
 
-  constructor(dbPath: string = path.join(process.cwd(), "data", "screenshots.db")) {
-    // Ensure directory exists
-    const dir = path.dirname(dbPath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-
-    this.db = new Database(dbPath);
+  constructor(db: Database.Database = defaultDb) {
+    this.db = db;
     this.migrate();
   }
 

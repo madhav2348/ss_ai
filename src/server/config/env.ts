@@ -22,4 +22,7 @@ export const env = {
   processedStorageDir: process.env.PROCESSED_STORAGE_DIR
     ? path.resolve(process.env.PROCESSED_STORAGE_DIR)
     : path.join(/* turbopackIgnore: true */ process.cwd(), "storage", "processed"),
+  sqliteStoragePath: process.env.SQLITE_STORAGE_PATH
+    ? path.resolve(process.env.SQLITE_STORAGE_PATH)
+    : path.join(/* turbopackIgnore: true */ process.cwd(), "storage", "db", "ss.db"),
 };

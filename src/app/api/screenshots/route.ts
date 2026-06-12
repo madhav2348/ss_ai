@@ -8,7 +8,7 @@ import type { ScreenshotInput } from "@/server/types/screenshot";
 
 export async function GET() {
   const { repository } = await getServerRuntime();
-  const records = await repository.list();
+  const records = await repository.findAll();
   return NextResponse.json(records);
 }
 
