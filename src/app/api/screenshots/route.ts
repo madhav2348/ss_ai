@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerRuntime } from "@/server/runtime";
-import { randomUUID } from "crypto";
+import { randomUUID, createHash } from "crypto";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { env } from "@/server/config/env";

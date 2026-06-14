@@ -11,5 +11,7 @@ export interface IScreenshotRepository {
   save(record: ScreenshotAnalysis): Promise<void>;
   findById(id: string): Promise<ScreenshotAnalysis | null>;
   findAll(filters?: RecordFilters): Promise<ScreenshotAnalysis[]>;
+  findByHash(hash: string): Promise<ScreenshotAnalysis | null>;
+  findBySourceRef(sourceRef: string): Promise<ScreenshotAnalysis | null>;
   delete(id: string): Promise<void>;
 }
