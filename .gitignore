@@ -21,3 +21,6 @@ build/
 *.tsbuildinfo
 next-env.d.ts
 .turbo/
+storage/screenshots/
+storage/processed/
+data/
