@@ -20,6 +20,12 @@ const sidebarItems = [
     icon: StorageIcon,
     href: '/dashboard/local-storage',
   },
+  {
+  id: 'job-history',
+  label: 'Job History',
+  icon: StorageIcon,
+  href: '/dashboard/job-history',
+},
 ] as const
 
 type SidebarProps = {
