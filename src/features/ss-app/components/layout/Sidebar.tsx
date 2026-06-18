@@ -46,9 +46,13 @@ export function Sidebar({
           <SidebarToggleIcon className="toggle-icon" isOpen={isOpen} />
         </button>
 
-        <div className="sidebar-brand" aria-label="Application logo">
+        <div 
+          className="sidebar-brand" 
+          aria-label="Application logo"
+          style={{ justifyContent: isOpen ? 'flex-start' : 'center' }}
+        >
           <span className="sidebar-logo-mark">L</span>
-          {isOpen ? <span className="sidebar-logo-text">Logo</span> : null}
+          {isOpen && <span className="sidebar-logo-text">Logo</span>}
         </div>
       </div>
 
@@ -63,10 +67,10 @@ export function Sidebar({
               className={`nav-item ${activeSection === item.id ? 'active' : ''}`}
               onClick={() => navigateTo(item.href)}
               aria-label={item.label}
-              title={item.label}
+              title={!isOpen ? item.label : undefined}
             >
               <Icon className="nav-icon" />
-              {isOpen ? <span>{item.label}</span> : null}
+              {isOpen && <span className="nav-label">{item.label}</span>}
             </button>
           )
         })}
