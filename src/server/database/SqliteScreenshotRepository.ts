@@ -84,15 +84,14 @@ async findBySourceRef(
         record_json  = excluded.record_json
     `);
 
-    stmt.run({
-      id:          record.screenshot.id,
-      sourceType:  record.screenshot.sourceType,
-      sourceRef:   record.screenshot.sourceRef,
-      fileHash:    record.screenshot.fileHash,
-      processedAt: record.processedAt,
-      recordJson:  JSON.stringify(record),
-    });
-  }
+export interface ScreenshotInput {
+  id: string;
+  sourceType: ScreenshotSourceType;
+  sourceRef: string;
+  storagePath?: string;
+  createdAt: string;
+  metadata: ScreenshotMetadata;
+}
 
   async findById(id: string): Promise<ScreenshotAnalysis | null> {
     const stmt = this.db.prepare(
