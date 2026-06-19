@@ -33,7 +33,7 @@ const pipeline = new ScreenshotPipeline(
   queue,
 );
 
-const worker = createQueueWorker(queue, pipeline);
+ createQueueWorker(queue, pipeline);
 const storageReady = processedStorage.ensure();
 
 async function drainQueue(): Promise<void> {
