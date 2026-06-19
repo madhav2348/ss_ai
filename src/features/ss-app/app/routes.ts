@@ -1,5 +1,9 @@
-export const dashboardSections = ['cloud', 'telegram', 'local-storage'] as const
-
+export const dashboardSections = [
+  'cloud',
+  'telegram',
+  'local-storage',
+  'job-history',
+] as const
 export type DashboardSection = (typeof dashboardSections)[number]
 
 export type Route =
