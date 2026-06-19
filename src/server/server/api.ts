@@ -32,7 +32,12 @@ export function createApiServer({ pipeline, repository, queue }: ApiServerDeps) 
 
     if (req.method === "GET" && req.url === "/exports/xlsx") {
       const exportBuffer = await pipeline.exportRecords();
-      res.writeHead(200, { "content-type": "text/csv; charset=utf-8" });
+     res.writeHead(200, {
+  "content-type":
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "content-disposition":
+    'attachment; filename="screenshots.xlsx"',
+});
       res.end(exportBuffer);
       return;
     }
