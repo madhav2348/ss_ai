@@ -1,3 +1,4 @@
+import { JobHistoryPage } from '../../pages/dashboard/JobHistoryPage'
 import type { ThemeMode } from '../../app/App'
 import type { DashboardSection } from '../../app/routes'
 import type { UserSession } from '../../services/auth'
@@ -126,6 +127,9 @@ export function DashboardLayout({
           ) : null}
           {activeSection === 'telegram' ? <TelegramPage /> : null}
           {activeSection === 'local-storage' ? <LocalStoragePage /> : null}
+          {activeSection === 'job-history' ? (
+  <JobHistoryPage />
+) : null}
         </div>
       </section>
     </main>

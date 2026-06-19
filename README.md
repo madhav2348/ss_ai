@@ -250,3 +250,68 @@ ai-screenshot-agent
 ## Testing
 
 See TESTING.md for manual testing instructions.
+See TESTING.md for manual testing instructions.
+
+## Commit Linting with Husky and Conventional Commits
+
+To maintain a clean and consistent commit history, this repository enforces the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/) using [Husky](https://typicode.github.io/husky/) and [Commitlint](https://commitlint.js.org/). This ensures that all commit messages adhere to a standardized format, making it easier to understand project changes, automate changelog generation, and improve overall project maintainability.
+
+### Conventional Commits Structure
+
+Each commit message should follow the format:
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+#### Allowed Commit Types
+
+Here are the primary commit types supported in this repository:
+
+| Type     | Description                                                               |
+| :------- | :------------------------------------------------------------------------ |
+| `feat`   | A new feature                                                             |
+| `fix`    | A bug fix                                                                 |
+| `docs`   | Documentation only changes                                                |
+| `chore`  | Routine tasks, maintenance, or tooling changes                            |
+| `style`  | Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc.) |
+| `refactor` | A code change that neither fixes a bug nor adds a feature                 |
+| `perf`   | A code change that improves performance                                   |
+| `test`   | Adding missing tests or correcting existing tests                         |
+| `build`  | Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm) |
+| `ci`     | Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs) |
+| `revert` | Reverts a previous commit                                                 |
+
+#### Example Commit Messages
+
+*   **Valid Commit Messages:**
+    ```
+    feat: add user authentication module
+    fix(auth): resolve login redirect issue
+    docs: update README with installation steps
+    chore: update dependencies
+    ```
+
+*   **Invalid Commit Messages (will be rejected):**
+    ```
+    updated stuff
+    random changes
+    ```
+
+### How Husky Works
+
+Husky is a Git hooks manager that allows you to easily configure scripts to run at various stages of your Git workflow. In this repository, Husky is used to trigger Commitlint before a commit message is saved (`commit-msg` hook).
+
+When you attempt to commit, Husky will:
+
+1.  Intercept the `commit-msg` Git hook.
+2.  Execute Commitlint, which validates your commit message against the Conventional Commits specification.
+3.  If the commit message is valid, the commit proceeds as usual.
+4.  If the commit message is invalid, Commitlint will provide an error message, and the commit will be aborted, preventing non-compliant messages from entering the repository history.
+
+This setup ensures that all contributions adhere to the defined commit standards automatically.
+See TESTING.md for manual testing instructions.
