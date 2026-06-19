@@ -88,7 +88,7 @@ async findBySourceRef(
       id:          record.screenshot.id,
       sourceType:  record.screenshot.sourceType,
       sourceRef:   record.screenshot.sourceRef,
-      fileHash:    record.screenshot.fileHash,
+      fileHash: record.screenshot.fileHash,
       processedAt: record.processedAt,
       recordJson:  JSON.stringify(record),
     });
