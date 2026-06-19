@@ -53,6 +53,14 @@
 .primary-button:hover {
   background: var(--sidebar-selected-text);
   color: var(--sidebar-selected-bg);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+.primary-button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 .primary-button:disabled,
@@ -73,6 +81,13 @@
 
 .secondary-button:hover {
   background: var(--surface-soft);
+  transform: translateY(-2px);
+  transition: all 0.2s ease;
+}
+
+.secondary-button:focus-visible {
+  outline: 2px solid var(--border);
+  outline-offset: 2px;
 }
 
 .compact-button {
@@ -134,6 +149,13 @@
 .sidebar-toggle:hover {
   background: var(--sidebar-selected-bg);
   color: var(--sidebar-selected-text);
+  transform: scale(1.05);
+  transition: all 0.2s ease;
+}
+
+.sidebar-toggle:focus-visible {
+  outline: 2px solid var(--sidebar-selected-text);
+  outline-offset: 2px;
 }
 
 .toggle-icon {
@@ -224,6 +246,14 @@
 
 .nav-item:hover {
   background: rgba(255, 255, 255, 0.12);
+  transform: translateX(4px);
+  transition: all 0.2s ease;
+}
+
+.nav-item:focus-visible {
+  outline: 2px solid var(--sidebar-selected-text);
+  outline-offset: -2px;
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .nav-item.active {
@@ -296,6 +326,13 @@
 
 .account-button:hover {
   background: var(--primary-soft);
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+.account-button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 .account-icon {
@@ -344,6 +381,13 @@
 
 .account-menu-item:hover {
   background: var(--surface-soft);
+  padding-left: 18px;
+  transition: all 0.2s ease;
+}
+
+.account-menu-item:focus-visible {
+  background: var(--surface-soft);
+  outline: none;
 }
 
 .account-menu-profile {
@@ -421,6 +465,14 @@
 .connect-card:hover:not(:disabled) {
   background: var(--primary-soft);
   border-color: var(--primary);
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.connect-card:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
 }
 
 .connect-icon {
@@ -715,4 +767,40 @@
 .job-retry-btn:hover {
   background: #b3261e;
   color: #fff;
+}
+
+.job-row {
+  transition: background-color 0.2s ease;
+}
+
+.job-row:hover {
+  background-color: var(--surface-soft);
+}
+
+.job-retry-btn {
+  font: inherit;
+  cursor: pointer;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.job-retry-btn:hover {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.job-retry-btn:active {
+  transform: translateY(0);
+}
+
+.job-retry-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
