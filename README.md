@@ -313,3 +313,4 @@ When you attempt to commit, Husky will:
 4.  If the commit message is invalid, Commitlint will provide an error message, and the commit will be aborted, preventing non-compliant messages from entering the repository history.
 
 This setup ensures that all contributions adhere to the defined commit standards automatically.
+See TESTING.md for manual testing instructions.
