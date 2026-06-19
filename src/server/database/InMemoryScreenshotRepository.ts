@@ -11,6 +11,15 @@ export class InMemoryScreenshotRepository implements IScreenshotRepository {
   async findById(id: string): Promise<ScreenshotAnalysis | null> {
     return this.records.get(id) ?? null;
   }
+  async findByHash(hash: string): Promise<ScreenshotAnalysis | null> {
+  return null;
+}
+
+async findBySourceRef(
+  sourceRef: string
+): Promise<ScreenshotAnalysis | null> {
+  return null;
+}
 
   async findAll(filters?: RecordFilters): Promise<ScreenshotAnalysis[]> {
     let results = Array.from(this.records.values());

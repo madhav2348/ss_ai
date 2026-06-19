@@ -10,6 +10,7 @@ import {
   findGoogleDriveScreenshotFolders,
   type DriveFolderCandidate,
 } from '../../services/googleDrive'
+import { JobStatusPanel } from '../../components/jobs/JobStatusPanel'
 
 type CloudPageProps = {
   onSignIn: () => Promise<void>
@@ -120,6 +121,8 @@ export function CloudPage({ onSignIn, session }: CloudPageProps) {
           <span className="connect-note">Planned</span>
         </button>
       </div>
+
+      <JobStatusPanel />
     </div>
   )
 }

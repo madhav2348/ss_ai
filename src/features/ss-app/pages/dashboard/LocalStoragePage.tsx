@@ -5,6 +5,7 @@ import {
   supportsDirectoryDetection,
   type ScreenshotDirectoryDetection,
 } from '../../services/screenshotDirectory'
+import { JobStatusPanel } from '../../components/jobs/JobStatusPanel'
 
 export function LocalStoragePage() {
   const [detection, setDetection] = useState<ScreenshotDirectoryDetection | null>(
@@ -80,6 +81,8 @@ export function LocalStoragePage() {
           ))}
         </div>
       ) : null}
+
+      <JobStatusPanel />
     </div>
   )
 }

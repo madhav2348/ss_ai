@@ -20,3 +20,6 @@ build/
 .vercel
 *.tsbuildinfo
 next-env.d.ts
+storage/screenshots/
+storage/processed/
+data/
