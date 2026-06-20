@@ -9,36 +9,28 @@ export class SqliteScreenshotRepository implements IScreenshotRepository {
   constructor(db: Database.Database = defaultDb) {
     this.db = db;
   async findByHash(hash: string): Promise<ScreenshotAnalysis | null> {
-  const stmt = this.db.prepare(
-    "SELECT record_json FROM screenshot_records WHERE file_hash = ?"
-  );
+    const stmt = this.db.prepare(
+      "SELECT record_json FROM screenshot_records WHERE file_hash = ?",
+    );
 
-  const row = stmt.get(hash) as
-    | { record_json: string }
-    | undefined;
+    const row = stmt.get(hash) as { record_json: string } | undefined;
 
-  return row
-    ? (JSON.parse(row.record_json) as ScreenshotAnalysis)
-    : null;
-}
+    return row ? (JSON.parse(row.record_json) as ScreenshotAnalysis) : null;
+  }
 
-async findBySourceRef(
-  sourceRef: string
-): Promise<ScreenshotAnalysis | null> {
-  const stmt = this.db.prepare(
-    "SELECT record_json FROM screenshot_records WHERE source_ref = ?"
-  );
+  async findBySourceRef(sourceRef: string): Promise<ScreenshotAnalysis | null> {
+    const stmt = this.db.prepare(
+      "SELECT record_json FROM screenshot_records WHERE source_ref = ?",
+    );
 
-  const row = stmt.get(sourceRef) as
-    | { record_json: string }
-    | undefined;
+    const row = stmt.get(sourceRef) as { record_json: string } | undefined;
 
-  return row
-    ? (JSON.parse(row.record_json) as ScreenshotAnalysis)
-    : null;
-}
+    return row ? (JSON.parse(row.record_json) as ScreenshotAnalysis) : null;
+  }
 
-  constructor(dbPath: string = path.join(process.cwd(), "data", "screenshots.db")) {
+  constructor(
+    dbPath: string = path.join(process.cwd(), "data", "screenshots.db"),
+  ) {
     // Ensure directory exists
     const dir = path.dirname(dbPath);
     if (!fs.existsSync(dir)) {
@@ -50,7 +42,7 @@ async findBySourceRef(
   }
 
   private migrate(): void {
-  this.db.exec(`
+    this.db.exec(`
     CREATE TABLE IF NOT EXISTS screenshot_records (
       id           TEXT PRIMARY KEY,
       source_type  TEXT NOT NULL,
@@ -72,7 +64,7 @@ async findBySourceRef(
     CREATE INDEX IF NOT EXISTS idx_file_hash
       ON screenshot_records (file_hash);
   `);
-}
+  }
 
   async save(record: ScreenshotAnalysis): Promise<void> {
     const stmt = this.db.prepare(`
@@ -91,13 +83,13 @@ async findBySourceRef(
       sourceRef:   record.screenshot.sourceRef,
       fileHash:    record.screenshot.fileHash,
       processedAt: record.processedAt,
-      recordJson:  JSON.stringify(record),
+      recordJson: JSON.stringify(record),
     });
   }
 
   async findById(id: string): Promise<ScreenshotAnalysis | null> {
     const stmt = this.db.prepare(
-      "SELECT record_json FROM screenshot_records WHERE id = ?"
+      "SELECT record_json FROM screenshot_records WHERE id = ?",
     );
     const row = stmt.get(id) as { record_json: string } | undefined;
     return row ? (JSON.parse(row.record_json) as ScreenshotAnalysis) : null;
@@ -122,15 +114,20 @@ async findBySourceRef(
 
     query += " ORDER BY processed_at DESC";
 
-    const rows = this.db.prepare(query).all(...params) as { record_json: string }[];
-    let results = rows.map((r) => JSON.parse(r.record_json) as ScreenshotAnalysis);
+    const rows = this.db.prepare(query).all(...params) as {
+      record_json: string;
+    }[];
+    let results = rows.map(
+      (r) => JSON.parse(r.record_json) as ScreenshotAnalysis,
+    );
 
     // Filter by tag in memory (tags are inside JSON)
     if (filters?.tag) {
       const tag = filters.tag.toLowerCase();
-      results = results.filter((r) =>
-        r.tagging.labels.some((l) => l.toLowerCase().includes(tag)) ||
-        r.tagging.categories.some((c) => c.toLowerCase().includes(tag))
+      results = results.filter(
+        (r) =>
+          r.tagging.labels.some((l) => l.toLowerCase().includes(tag)) ||
+          r.tagging.categories.some((c) => c.toLowerCase().includes(tag)),
       );
     }
 
