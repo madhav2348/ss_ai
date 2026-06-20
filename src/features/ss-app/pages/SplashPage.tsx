@@ -39,6 +39,9 @@ export function SplashPage({
       <section className="splash-card">
         <p className="eyebrow">ss.ai workspace</p>
         <h1>Start with a clean screenshot workspace.</h1>
+        <p className="splash-copy">
+          Capture, organize, and export screenshots from one focused dashboard.
+        </p>
         <div className="splash-actions">
           <button
             type="button"
