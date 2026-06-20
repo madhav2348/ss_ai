@@ -77,7 +77,18 @@ export function CloudPage({ onSignIn, session }: CloudPageProps) {
               : 'Connect Google Drive'}
         </button>
 
-        {driveStatus ? <p className="status-message">{driveStatus}</p> : null}
+        {driveStatus ? (
+  <p
+    className={`status-message ${
+      driveStatus.toLowerCase().includes('failed') ||
+      driveStatus.toLowerCase().includes('error')
+        ? 'error'
+        : 'success'
+    }`}
+  >
+    {driveStatus}
+  </p>
+) : null}
 
         {driveFolders.length > 0 ? (
           <div className="detected-list">
