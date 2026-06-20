@@ -21,7 +21,7 @@ export function createQueueWorker(
         console.log(`[QueueWorker] Started processing job ${job.id}`);
 
         try {
-          await pipeline.process(job.payload);
+          await pipeline.process(job.payload, job.id);
           job.status = "processed";
           job.updatedAt = new Date().toISOString();
           console.log(`[QueueWorker] Successfully processed job ${job.id}`);
