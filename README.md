@@ -205,47 +205,21 @@ Worker Picks Job
 #### Structure 
 > Will improve/Change in future
 ```
-ai-screenshot-agent
+ss_ai
 │
-├── services
-│   ├── ingestion
-│   │   ├── telegram
-│   │   │   └── bot.ts
-│   │   ├── cloud
-│   │   │   └── watcher.ts
-│   │   └── local
-│   │       └── deviceWatcher.ts
-│   │
-│   ├── queue
-│   │   ├── queue.ts
-│   │   └── redis.ts
-│   │
-│   ├── workers
-│   │   ├── ocrWorker.ts
-│   │   ├── visionWorker.ts
-│   │   ├── sourceWorker.ts
-│   │   └── tagWorker.ts
-│   │
-│   ├── ai
-│   │   ├── ocr
-│   │   │   └── paddle.ts
-│   │   ├── vision
-│   │   │   └── visionAgent.ts
-│   │   └── embeddings
-│   │       └── vector.ts
-│
-├── storage
-│   ├── screenshots
-│   └── processed
-│
-├── database
-│   └── schema.ts
-│
-├── exports
-│   └── xlsxExporter.ts
-│
-└── server
-    └── api.ts
+├── .github
+├── .husky
+├── mobile [soon]
+├── public
+├── src
+│ ├── app
+│ ├── features
+│ └── server
+├── README.md
+├── CONTRIBUTING.md
+├── TESTING.md
+├── package.json
+└── next.config.ts
 ```
 ## Testing
 
