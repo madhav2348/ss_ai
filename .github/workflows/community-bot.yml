@@ -1,0 +1,76 @@
+name: Community Bot
+
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened]
+  pull_request:
+    branches: [develop]
+    types: [opened, synchronize]
+
+jobs:
+  reply-to-issue:
+    if: github.event_name == 'issues'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `👋 Thanks for opening this issue, @${context.payload.issue.user.login}!
+
+              Before our team reviews it, please make sure you've:
+              - ⭐ **Starred this repo** to stay updated
+              - 🍴 **Forked the repo** before making any changes
+              - 📖 Read our **[Contributing Guidelines](CONTRIBUTING.md)**
+              - ✅ Pushed your changes to the \`develop\` branch (not \`main\`)
+
+              We'll get back to you soon!`
+            })
+
+  reply-to-pr:
+    if: github.event_name == 'pull_request_target'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🎉 Thanks for submitting a PR, @${context.payload.pull_request.user.login}!
+
+              Please confirm the following checklist before review:
+              - [ ] ⭐ I have **starred** this repository
+              - [ ] 🍴 I have **forked** this repository
+              - [ ] 📖 I have read the **[Contributing Guidelines](CONTRIBUTING.md)**
+              - [ ] 🔀 My changes are pushed to the \`develop\` branch
+
+              A maintainer will review your PR shortly. Thank you! 🚀`
+            })
+
+  check-develop-branch:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const base = context.payload.pull_request.base.ref;
+            if (base !== 'develop') {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `⚠️ Hey @${context.payload.pull_request.user.login}, your PR is targeting \`${base}\` branch.\n\nPlease re-submit targeting the **\`develop\`** branch. PRs to \`main\` are not accepted directly. See our [Contributing Guidelines](CONTRIBUTING.md) for details.`
+              });
+              core.setFailed("PR must target the develop branch.");
+            }
