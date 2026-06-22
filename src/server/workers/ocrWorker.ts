@@ -1,22 +1,32 @@
 import fs from 'fs';
-import axios from 'axios';
-
-const OCR_SERVICE_URL = process.env.JAVA_OCR_SERVICE_URL || 'http://localhost:8080/api/ocr';
-const TIMEOUT_MS = 3000;
+import Tesseract from 'tesseract.js';
 
 export class OCRWorker {
   async process(stagingPath: string, screenshotId: string): Promise<void> {
     try {
       const imageBuffer = fs.readFileSync(stagingPath);
-      const base64Image = imageBuffer.toString('base64');
 
-      const response = await axios.post(
-        OCR_SERVICE_URL,
-        { imageBase64: base64Image },
-        { timeout: TIMEOUT_MS }
-      );
+      const result = await Tesseract.recognize(imageBuffer, 'eng', {
+        logger: (m) => {
+          if (m.status === 'recognizing text') {
+            console.log(`[OCRWorker] Progress: ${Math.round(m.progress * 100)}%`);
+          }
+        },
+      });
 
-      console.log(`[OCRWorker] Screenshot ${screenshotId} processed. Text:`, response.data.text);
+      const text = result.data.text.trim();
+      const confidence = result.data.confidence;
+
+      console.log(`[OCRWorker] Screenshot ${screenshotId} processed.`);
+      console.log(`[OCRWorker] Text length: ${text.length} chars, Confidence: ${confidence}%`);
+
+      // TODO: Update SQLite with extracted text
+      // const updateStmt = db.prepare(`
+      //   UPDATE screenshots
+      //   SET ocr_text = ?, ocr_confidence = ?, status = 'PROCESSED'
+      //   WHERE id = ?
+      // `);
+      // updateStmt.run(text, confidence, screenshotId);
     } catch (error) {
       console.error(`[OCRWorker] Failed for ${screenshotId}:`, error);
       throw error;
