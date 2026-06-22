@@ -67,23 +67,22 @@ export class SqliteScreenshotRepository implements IScreenshotRepository {
       ON screenshot_records (file_hash);
   `);
   }
-
   async save(record: ScreenshotAnalysis): Promise<void> {
     const stmt = this.db.prepare(`
-      INSERT INTO screenshot_records (id, source_type, source_ref, file_hash , processed_at, record_json)
-      VALUES (@id, @sourceType, @sourceRef,@fileHash, @processedAt, @recordJson)
+      INSERT INTO screenshot_records (id, source_type, source_ref, file_hash, processed_at, record_json)
+      VALUES (@id, @sourceType, @sourceRef, @fileHash, @processedAt, @recordJson)
       ON CONFLICT(id) DO UPDATE SET
-        source_type  = excluded.source_type,
-        source_ref   = excluded.source_ref,
+        source_type = excluded.source_type,
+        source_ref = excluded.source_ref,
         processed_at = excluded.processed_at,
-        record_json  = excluded.record_json
+        record_json = excluded.record_json
     `);
 
     stmt.run({
       id: record.screenshot.id,
       sourceType: record.screenshot.sourceType,
       sourceRef: record.screenshot.sourceRef,
-      // fileHash: record.screenshot.fileHash, // need to look at this
+      fileHash: null,
       processedAt: record.processedAt,
       recordJson: JSON.stringify(record),
     });
@@ -143,4 +142,4 @@ export class SqliteScreenshotRepository implements IScreenshotRepository {
   close(): void {
     this.db.close();
   }
-}
+} shi hai ab
