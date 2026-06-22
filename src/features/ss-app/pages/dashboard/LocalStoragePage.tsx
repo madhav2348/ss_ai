@@ -60,18 +60,7 @@ export function LocalStoragePage() {
         </p>
       ) : null}
 
-     {status ? (
-  <p
-    className={`status-message ${
-      status.toLowerCase().includes('failed') ||
-      status.toLowerCase().includes('error')
-        ? 'error'
-        : 'success'
-    }`}
-  >
-    {status}
-  </p>
-) : null}
+      {status ? <p className="status-message">{status}</p> : null}
 
       {detection ? (
         <div className="detected-list">
