@@ -3,10 +3,63 @@
 }
 
 .splash-shell {
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 32px;
   position: relative;
+  min-height: 100vh;
+  background-color: #f8fafc;
+  background-image:
+    radial-gradient(rgba(99, 102, 241, 0.05) 2px, transparent 2px),
+    radial-gradient(circle at center, #ffffff 0%, rgba(99, 102, 241, 0.08) 100%);
+  background-size:
+    24px 24px,
+    100% 100%;
+}
+
+.splash-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .splash-shell {
+  background:
+    radial-gradient(rgba(139, 92, 246, 0.18), transparent 40%),
+    radial-gradient(rgba(59, 130, 246, 0.12), transparent 35%), #020617;
+
+  border: 1px solid rgba(139, 92, 246, 0.15);
+
+  box-shadow:
+    0 0 30px rgba(139, 92, 246, 0.15),
+    0 20px 60px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+  backdrop-filter: blur(16px);
+  border-radius: 24px;
+}
+.splash-card > span,
+.splash-card .eyebrow,
+.splash-card span[class*="workspace"] {
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #6366f1;
+  background: rgba(99, 102, 241, 0.08);
+  padding: 6px 16px;
+  border-radius: 99px;
+  margin: 0 auto;
+}
+
+.splash-card h1,
+.splash-card .splash-title {
+  font-size: 2.85rem;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+  color: var(--primary-text);
+  margin: 0;
 }
 
 .splash-card,
@@ -17,17 +70,43 @@
   border-radius: 24px;
   box-shadow: var(--shadow);
 }
-
 .splash-card {
-  width: min(560px, 100%);
-  min-height: 430px;
-  display: grid;
-  place-items: center;
+  position: relative;
+  max-width: 600px;
+  width: 100%;
+  min-height: 400px;
+  padding: 56px 48px;
+  border-radius: 28px;
+  background: var(--surface);
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 20px 25px -5px rgba(0, 0, 0, 0.05),
+    0 0 0 1px rgba(99, 102, 241, 0.08);
   text-align: center;
-  gap: 20px;
-  padding: 48px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  animation: premiumFloatIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.splash-card .button-group,
+.splash-card div:has(button) {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 12px;
 }
 
+/* 5. Buttons par premium hover effects */
+.splash-card button,
+.splash-card .btn {
+  padding: 12px 24px;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
 .primary-button,
 .secondary-button,
 .sidebar-toggle,
