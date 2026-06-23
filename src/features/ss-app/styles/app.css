@@ -88,6 +88,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
+  gap: 20px;
+  padding: 48px 32px;
+  background: var(--surface-soft);
   gap: 28px;
   animation: premiumFloatIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -124,9 +128,15 @@
   min-width: 180px;
   padding: 16px 24px;
   border-radius: 999px;
-  font-weight: 600;
-  color: var(--surface);
-  background: var(--primary);
+  font-weight: 700;
+  color: #ffffff;
+  background: #3b1f8c;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.primary-button:hover {
+  background: #4c2aad;
+  transform: translateY(-2px);
 }
 
 .primary-button:hover {
@@ -147,7 +157,7 @@
   border-radius: 999px;
   color: var(--text);
   background: transparent;
-  border: 1px solid var(--border);
+  border: none;
 }
 
 .secondary-button:hover {
@@ -596,7 +606,21 @@
   font-size: 0.78rem;
   color: var(--primary);
 }
+.splash-card h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  line-height: 1.25;
+  font-weight: 700;
+  color: #b8a4e8;
+}
 
+.splash-subtitle {
+  margin: 0;
+  max-width: 42ch;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.6;
+}
 .empty-state {
   max-width: 34ch;
   color: var(--muted);
