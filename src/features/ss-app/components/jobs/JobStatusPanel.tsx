@@ -52,7 +52,14 @@ async function fetchJobs(): Promise<JobRecord[]> {
 }
 
 async function retryJob(jobId: string): Promise<void> {
-  await fetch(`/api/screenshots/${jobId}/retry`, { method: 'POST' })
+  const response = await fetch(
+    `/api/screenshots/${jobId}/retry`,
+    { method: 'POST' }
+  )
+
+  if (!response.ok) {
+    throw new Error('Failed to retry job')
+  }
 }
 
 export function JobStatusPanel() {
