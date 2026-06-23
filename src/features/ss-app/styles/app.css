@@ -129,15 +129,9 @@
   background: var(--primary);
 }
 
-.primary-button {
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, color 0.15s ease;
-}
-
 .primary-button:hover {
   background: var(--sidebar-selected-text);
   color: var(--sidebar-selected-bg);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow);
 }
 
 .primary-button:disabled,
@@ -156,13 +150,8 @@
   border: 1px solid var(--border);
 }
 
-.secondary-button {
-  transition: transform 0.15s ease, background 0.15s ease;
-}
-
 .secondary-button:hover {
   background: var(--surface-soft);
-  transform: translateY(-2px);
 }
 
 .compact-button {
@@ -606,22 +595,6 @@
   letter-spacing: 0.18em;
   font-size: 0.78rem;
   color: var(--primary);
-}
-
-.splash-card h1 {
-  margin: 0;
-  font-size: clamp(1.6rem, 4vw, 2.25rem);
-  line-height: 1.25;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.splash-subtitle {
-  margin: 0;
-  max-width: 42ch;
-  color: var(--muted);
-  font-size: 1rem;
-  line-height: 1.5;
 }
 
 .empty-state {
