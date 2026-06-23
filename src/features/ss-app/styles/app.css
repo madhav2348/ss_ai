@@ -110,17 +110,28 @@
 }
 
 .sidebar.closed {
-  width: 92px;
-  padding-inline: 14px;
+  width: 80px;
+  padding-inline: 0;
+  align-items: center;
 }
 
 .sidebar-header {
   display: flex;
   align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  gap: 16px;
   margin-bottom: 4px;
 }
 
+.sidebar.closed .nav-item {
+  justify-content: center;
+  padding: 0;
+  width: 48px;
+  height: 48px;
+  min-height: 48px;
+  border-radius: 16px;
+  margin: 0 auto;
+}
 .sidebar-toggle {
   width: 48px;
   height: 48px;
@@ -129,6 +140,12 @@
   border-radius: 16px;
   color: var(--surface);
   background: var(--sidebar-control-bg);
+}
+
+.sidebar.open .sidebar-header {
+  align-items: center;
+  flex-direction: row;
+  gap: 16px;
 }
 
 .sidebar-toggle:hover {
@@ -603,13 +620,21 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes pulse-ring {
-  0%   { box-shadow: 0 0 0 0 rgba(111, 66, 217, 0.45); }
-  70%  { box-shadow: 0 0 0 6px rgba(111, 66, 217, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(111, 66, 217, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(111, 66, 217, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(111, 66, 217, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(111, 66, 217, 0);
+  }
 }
 
 .job-spinner {
@@ -623,7 +648,9 @@
 
 .job-spinner--active {
   border-top-color: var(--primary);
-  animation: spin 0.9s linear infinite, pulse-ring 1.8s ease-out infinite;
+  animation:
+    spin 0.9s linear infinite,
+    pulse-ring 1.8s ease-out infinite;
 }
 
 .job-check {
@@ -663,7 +690,7 @@
 .job-id {
   font-size: 0.78rem;
   color: var(--muted);
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   white-space: nowrap;
 }
 
@@ -709,7 +736,9 @@
   background: transparent;
   font-size: 0.84rem;
   font-weight: 600;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .job-retry-btn:hover {
