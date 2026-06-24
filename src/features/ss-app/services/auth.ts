@@ -77,7 +77,16 @@ export async function signInWithGoogle(): Promise<UserSession> {
   authUrl.searchParams.set('scope', GOOGLE_SCOPES.join(' '))
   authUrl.searchParams.set('include_granted_scopes', 'true')
   authUrl.searchParams.set('prompt', 'consent')
+const state = crypto.randomUUID();
+sessionStorage.setItem("google_oauth_state", state);
 
+authUrl.searchParams.set("state", state);
+  const returnedState = hashParams.get("state");
+const expectedState = sessionStorage.getItem("google_oauth_state");
+
+if (returnedState !== expectedState) {
+  throw new Error("Invalid OAuth state.");
+}
   const tokenResult = await openGoogleAuthPopup(authUrl.toString(), redirectUri)
   const userInfo = await fetchGoogleUser(tokenResult.accessToken)
   const session: UserSession = {
