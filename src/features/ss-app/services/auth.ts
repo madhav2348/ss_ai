@@ -14,6 +14,7 @@ type GoogleUserInfo = {
 }
 
 const SESSION_STORAGE_KEY = 'ss-google-session'
+const OAUTH_STATE_KEY = 'ss-google-oauth-state'
 const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
 const GOOGLE_USERINFO_URL = 'https://www.googleapis.com/oauth2/v3/userinfo'
 const GOOGLE_SCOPES = [
@@ -106,11 +107,15 @@ async function fetchGoogleUser(accessToken: string): Promise<GoogleUserInfo> {
 
   return response.json() as Promise<GoogleUserInfo>
 }
-
 function openGoogleAuthPopup(
   authUrl: string,
   redirectUri: string,
-): Promise<{ accessToken: string; expiresIn: number }> {
+): Promise<{
+  accessToken: string
+  expiresIn: number
+  state: string
+}>
+
   return new Promise((resolve, reject) => {
     const width = 520
     const height = 680
@@ -148,8 +153,30 @@ function openGoogleAuthPopup(
         }
 
         const hashParams = new URLSearchParams(popup.location.hash.slice(1))
+        const returnedState =
+  hashParams.get('state')
         const accessToken = hashParams.get('access_token')
         const expiresIn = Number(hashParams.get('expires_in') ?? '3600')
+        const expectedState =
+  window.sessionStorage.getItem(
+    OAUTH_STATE_KEY
+  )
+
+if (
+  !returnedState ||
+  returnedState !== expectedState
+) {
+  window.clearInterval(intervalId)
+  popup.close()
+
+  reject(
+    new Error(
+      'Invalid OAuth state.'
+    )
+  )
+
+  return
+}
 
         if (!accessToken) {
           return
@@ -157,7 +184,11 @@ function openGoogleAuthPopup(
 
         window.clearInterval(intervalId)
         popup.close()
-        resolve({ accessToken, expiresIn })
+       resolve({
+  accessToken,
+  expiresIn,
+  state: returnedState
+})
       } catch {
         // The popup is cross-origin until Google redirects back to this app.
       }
