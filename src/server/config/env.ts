@@ -14,8 +14,9 @@ export const env = {
   nodeEnv: process.env.NODE_ENV ?? "development",
   port: readNumber("PORT", 3000),
   redisUrl: process.env.REDIS_URL ?? "redis://localhost:6379",
-  telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? "",
-  openAiApiKey: process.env.OPENAI_API_KEY ?? "",
+ if (env.nodeEnv === "production" && !process.env.OPENAI_API_KEY) {
+  throw new Error("OPENAI_API_KEY is required");
+}
   screenshotStorageDir: process.env.SCREENSHOT_STORAGE_DIR
     ? path.resolve(process.env.SCREENSHOT_STORAGE_DIR)
     : path.join(/* turbopackIgnore: true */ process.cwd(), "storage", "screenshots"),
