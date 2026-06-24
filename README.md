@@ -250,6 +250,7 @@ ai-screenshot-agent
 ## Testing
 
 See TESTING.md for manual testing instructions.
+See TESTING.md for manual testing instructions.
 
 ## Commit Linting with Husky and Conventional Commits
 

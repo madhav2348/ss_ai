@@ -1,15 +1,13 @@
 import Database from "better-sqlite3";
-import path from "node:path";
-import fs from "node:fs";
 import type { ScreenshotAnalysis } from "../types/screenshot";
-import type {
-  IScreenshotRepository,
-  RecordFilters,
-} from "./IScreenshotRepository";
+import type { IScreenshotRepository, RecordFilters } from "./IScreenshotRepository";
+import { db as defaultDb } from "../db/client";
 
 export class SqliteScreenshotRepository implements IScreenshotRepository {
   private readonly db: Database.Database;
 
+  constructor(db: Database.Database = defaultDb) {
+    this.db = db;
   async findByHash(hash: string): Promise<ScreenshotAnalysis | null> {
     const stmt = this.db.prepare(
       "SELECT record_json FROM screenshot_records WHERE file_hash = ?",
@@ -80,10 +78,10 @@ export class SqliteScreenshotRepository implements IScreenshotRepository {
     `);
 
     stmt.run({
-      id: record.screenshot.id,
-      sourceType: record.screenshot.sourceType,
-      sourceRef: record.screenshot.sourceRef,
-      // fileHash: record.screenshot.fileHash, // need to look at this
+      id:          record.screenshot.id,
+      sourceType:  record.screenshot.sourceType,
+      sourceRef:   record.screenshot.sourceRef,
+      fileHash:    record.screenshot.fileHash,
       processedAt: record.processedAt,
       recordJson: JSON.stringify(record),
     });

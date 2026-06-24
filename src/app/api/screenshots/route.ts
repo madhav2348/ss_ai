@@ -19,6 +19,9 @@ const ACCEPTED_EXTENSIONS = /\.(png|jpe?g|webp|heic|gif|bmp)$/i;
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 export async function GET() {
+  const { repository } = await getServerRuntime();
+  const records = await repository.findAll();
+  return NextResponse.json(records);
   const { queue } = await getServerRuntime();
   return NextResponse.json(queue.list());
 }
