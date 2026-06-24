@@ -9,7 +9,11 @@ export class FilesystemStorage {
   }
 
   async saveJson(relativePath: string, data: unknown): Promise<string> {
-    const target = path.join(this.baseDir, relativePath);
+   const target = path.resolve(this.baseDir, relativePath);
+
+if (!target.startsWith(path.resolve(this.baseDir))) {
+  throw new Error("Invalid path");
+}
     await fs.mkdir(path.dirname(target), { recursive: true });
     await fs.writeFile(target, JSON.stringify(data, null, 2), "utf8");
     return target;
