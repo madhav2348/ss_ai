@@ -11,13 +11,14 @@ export class InMemoryScreenshotRepository implements IScreenshotRepository {
   async findById(id: string): Promise<ScreenshotAnalysis | null> {
     return this.records.get(id) ?? null;
   }
-  async findByHash(hash: string): Promise<ScreenshotAnalysis | null> {
-  return null;
-}
-
-async findBySourceRef(
+  async findBySourceRef(
   sourceRef: string
 ): Promise<ScreenshotAnalysis | null> {
+  for (const record of this.records.values()) {
+    if (record.screenshot.sourceRef === sourceRef) {
+      return record;
+    }
+  }
   return null;
 }
 
