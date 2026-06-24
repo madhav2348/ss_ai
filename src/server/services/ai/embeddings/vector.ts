@@ -4,7 +4,15 @@ export class VectorIndex {
   private readonly documents: ScreenshotAnalysis[] = [];
 
   async upsert(document: ScreenshotAnalysis): Promise<void> {
-    this.documents.push(document);
+    const index = this.documents.findIndex(
+  (d) => d.screenshot.id === document.screenshot.id
+);
+
+if (index >= 0) {
+  this.documents[index] = document;
+} else {
+  this.documents.push(document);
+}
   }
 
   list(): ScreenshotAnalysis[] {
